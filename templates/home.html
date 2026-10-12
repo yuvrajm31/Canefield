@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% block title %}Canefield — Know your cane field before it tells you{% endblock %}
+{% block page_class %}wide{% endblock %}
+{% block content %}
+<style>
+.cf-home{--g9:#14291c;--g8:#1d3a29;--g7:#2a5239;--g5:#4c8159;--amber:#e3a93b;--cream:#fbf7ec;--ink:#1c2a20;--mut:#6c7b6e;color:var(--ink);overflow-x:hidden}
+.cf-home *{box-sizing:border-box}
+.cf-home h1,.cf-home h2,.cf-home h3{font-family:Fraunces,Georgia,serif;letter-spacing:-.02em}
+.cf-mono{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;font-size:10px;font-weight:700}
+.cf-wrap{width:min(1180px,100%);margin:0 auto;padding:0 clamp(18px,3vw,28px)}
+
+.cf-hero{position:relative;background:radial-gradient(1200px 520px at 80% -10%,#2f6a45 0,transparent 60%),linear-gradient(170deg,var(--g9),var(--g8) 70%);color:#f4f1e3;padding:clamp(48px,7vw,92px) 0 0;overflow:hidden}
+.cf-hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,4vw,56px);align-items:center;position:relative;z-index:2}
+.cf-pill{display:inline-flex;align-items:center;gap:9px;padding:7px 13px;border:1px solid #ffffff26;border-radius:99px;background:#ffffff0d;color:#dbe8cf}
+.cf-dot{width:8px;height:8px;border-radius:50%;background:#7fe08a;animation:cfping 2s infinite}
+@keyframes cfping{0%{box-shadow:0 0 0 0 #7fe08a99}70%{box-shadow:0 0 0 9px #7fe08a00}100%{box-shadow:0 0 0 0 #7fe08a00}}
+.cf-hero h1{font-size:clamp(38px,5vw,64px);line-height:1.04;margin:22px 0 20px;font-weight:800}
+.cf-hero h1 em{white-space:nowrap}
+.cf-hero h1 em{font-style:italic;font-weight:500;color:var(--amber)}
+.cf-type{display:inline-block;border-right:3px solid var(--amber);padding-right:4px;animation:cfblink .8s steps(1) infinite;min-height:1em}
+@keyframes cfblink{50%{border-color:transparent}}
+.cf-lede{max-width:490px;font-size:16px;line-height:1.8;color:#c3d3bc;margin:0}
+.cf-cta{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:32px}
+.cf-btn{display:inline-flex;align-items:center;gap:12px;padding:15px 22px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;border:0;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s}
+.cf-btn:hover{transform:translateY(-2px)}
+.cf-btn.amber{background:var(--amber);color:#2b2108;box-shadow:0 10px 26px #e3a93b33}
+.cf-btn.amber:hover{background:#efb94d}
+.cf-btn.ghost{color:#e8f0df;border:1px solid #ffffff33;background:transparent}
+.cf-btn.ghost:hover{background:#ffffff12}
+.cf-hero-stats{display:flex;gap:clamp(18px,3vw,38px);flex-wrap:wrap;margin-top:42px;padding-top:26px;border-top:1px solid #ffffff1c}
+.cf-hero-stats b{display:block;font:800 clamp(24px,3vw,34px) Fraunces,serif;color:#fff}
+.cf-hero-stats span{color:#9fb5a0}
+
+.cf-sim{background:#fbf7ec;color:var(--ink);border-radius:20px;padding:22px;box-shadow:0 30px 70px #00000055;position:relative;transform:perspective(1200px) rotateY(var(--ry,-4deg)) rotateX(var(--rx,2deg));transition:transform .25s ease-out;scroll-margin-top:90px}
+.cf-sim-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;color:var(--mut)}
+.cf-sim-head b{color:var(--g7)}
+.cf-stage{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#efe9d6;padding:4px;border-radius:11px;margin-bottom:18px}
+.cf-stage button{border:0;background:transparent;padding:9px 6px;border-radius:8px;font:700 12px Inter,sans-serif;color:#6d705f;cursor:pointer;transition:all .2s}
+.cf-stage button.on{background:var(--g8);color:#fff;box-shadow:0 4px 10px #1d3a2933}
+.cf-gauge-row{display:grid;grid-template-columns:132px 1fr;gap:18px;align-items:center;margin-bottom:16px}
+.cf-gauge{position:relative;width:132px;height:132px}
+.cf-gauge svg{width:100%;height:100%;transform:rotate(-90deg)}
+.cf-gauge .trk{stroke:#e5dfca}
+.cf-gauge .val{stroke:var(--g5);transition:stroke-dashoffset .6s cubic-bezier(.3,1.3,.5,1),stroke .3s}
+.cf-gauge-c{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.cf-gauge-c b{font:800 28px Fraunces,serif;line-height:1}
+.cf-gauge-c small{color:var(--mut);font-size:10px;margin-top:4px}
+.cf-slide{margin-bottom:10px}
+.cf-slide label{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:#4a5a4d;margin-bottom:5px}
+.cf-slide label output{font-family:'JetBrains Mono',monospace;color:var(--g7)}
+.cf-sim input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:9px;background:linear-gradient(90deg,var(--g5) var(--p,50%),#e1dac3 var(--p,50%));outline:none;margin:0;padding:0;border:0}
+.cf-sim input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--g7);cursor:grab;box-shadow:0 2px 6px #0003}
+.cf-sim input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--g7);cursor:grab}
+.cf-verdict{margin-top:14px;padding:15px 16px;border-radius:13px;border:1px solid;transition:background .3s,border-color .3s}
+.cf-verdict.low{background:#fff3df;border-color:#f0d6a4}
+.cf-verdict.ok{background:#e8f4e4;border-color:#c9e2c1}
+.cf-verdict.wet{background:#e5f0f6;border-color:#bcd8e6}
+.cf-verdict .cf-mono{color:var(--mut)}
+.cf-verdict h3{font-size:18px;margin:6px 0 4px;line-height:1.3}
+.cf-verdict p{margin:0;font-size:12.5px;line-height:1.6;color:#59695c}
+.cf-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.cf-chip{padding:5px 9px;border-radius:7px;background:#ffffffaa;font:700 11px 'JetBrains Mono',monospace;color:var(--g7)}
+.cf-chip.risk-High{background:#fae3de;color:#9b3d30}.cf-chip.risk-Moderate{background:#f8ecc8;color:#85641a}
+
+.cf-cane{position:absolute;bottom:0;left:0;right:0;height:160px;z-index:1;pointer-events:none}
+.cf-cane svg{width:100%;height:100%}
+.cf-cane .stalk{transform-origin:bottom center;animation:cfsway 5s ease-in-out infinite}
+.cf-cane .stalk:nth-child(2n){animation-duration:6.4s;animation-delay:-1.6s}
+.cf-cane .stalk:nth-child(3n){animation-duration:4.4s;animation-delay:-2.4s}
+@keyframes cfsway{50%{transform:rotate(2.4deg)}}
+.cf-hero-pad{height:170px}
+
+.cf-marq{background:var(--amber);color:#2b2108;overflow:hidden;white-space:nowrap;padding:12px 0}
+.cf-marq div{display:inline-block;animation:cfmarq 38s linear infinite}
+.cf-marq span{margin:0 26px}
+@keyframes cfmarq{to{transform:translateX(-50%)}}
+
+.cf-sec{padding:clamp(56px,8vw,96px) 0}
+.cf-sec.cream{background:var(--cream)}
+.cf-sec h2{font-size:clamp(30px,4.2vw,50px);line-height:1.08;margin:14px 0 14px;font-weight:700}
+.cf-sec h2 em{font-style:italic;color:var(--g5);font-weight:500}
+.cf-sec .sub{max-width:560px;color:var(--mut);font-size:15px;line-height:1.8;margin:0}
+.cf-head{display:flex;justify-content:space-between;align-items:end;gap:28px;flex-wrap:wrap;margin-bottom:38px}
+
+.cf-tabs{display:grid;grid-template-columns:300px 1fr;gap:26px}
+.cf-tablist{display:grid;gap:10px;align-content:start}
+.cf-tab{display:flex;gap:14px;align-items:center;text-align:left;padding:16px 18px;border-radius:14px;border:1px solid #e3e6d6;background:#fff;cursor:pointer;font:inherit;color:inherit;transition:all .25s}
+.cf-tab:hover{transform:translateX(4px)}
+.cf-tab .ic{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#eef3e5;font-size:20px;flex-shrink:0}
+.cf-tab b{display:block;font-size:14px}
+.cf-tab small{color:var(--mut);font-size:11.5px}
+.cf-tab.on{background:var(--g8);color:#fff;border-color:var(--g8);box-shadow:0 14px 30px #1d3a2938}
+.cf-tab.on small{color:#b8cdb7}.cf-tab.on .ic{background:#ffffff1c}
+.cf-panel{background:#fff;border:1px solid #e3e6d6;border-radius:20px;padding:clamp(22px,3vw,34px);min-height:360px;display:none;animation:cfin .45s ease}
+.cf-panel.on{display:block}
+@keyframes cfin{from{opacity:0;transform:translateY(12px)}}
+.cf-panel h3{font-size:26px;margin:10px 0 10px}
+.cf-panel p{color:var(--mut);line-height:1.8;font-size:14px;max-width:520px}
+.cf-formula{margin-top:20px;padding:16px 18px;border-radius:12px;background:#f4f2e4;font:600 12.5px/1.9 'JetBrains Mono',monospace;color:#3d5440}
+.cf-bars{display:grid;gap:11px;margin-top:22px}
+.cf-bar{display:grid;grid-template-columns:96px 1fr 62px;gap:12px;align-items:center;font-size:12px;font-weight:600}
+.cf-bar i{display:block;height:11px;border-radius:7px;background:#ebe8d6;overflow:hidden}
+.cf-bar i s{display:block;height:100%;width:0;border-radius:7px;background:linear-gradient(90deg,var(--g5),#8bbd75);transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.cf-panel.on .cf-bar i s{width:var(--w)}
+
+.cf-tl{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:6px}
+.cf-tl::before{content:"";position:absolute;left:4%;right:4%;top:27px;height:3px;background:repeating-linear-gradient(90deg,#c9d6bb 0 9px,transparent 9px 16px)}
+.cf-st{position:relative;text-align:left;border:1px solid #e3e6d6;background:#fff;border-radius:18px;padding:70px 22px 22px;cursor:pointer;font:inherit;color:inherit;transition:all .3s}
+.cf-st .node{position:absolute;top:10px;left:22px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#eef3e5;border:3px solid #fff;box-shadow:0 0 0 2px #c9d6bb;font-size:17px;transition:all .3s}
+.cf-st h3{font-size:21px;margin:0 0 6px}
+.cf-st p{margin:0;color:var(--mut);font-size:13px;line-height:1.7}
+.cf-st .more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s}
+.cf-st .more>div{overflow:hidden}
+.cf-st.on .more{grid-template-rows:1fr}
+.cf-st .more ul{margin:14px 0 0;padding:14px 0 0 18px;border-top:1px dashed #d4dcc8;font-size:12.5px;line-height:1.9;color:#43584a}
+.cf-st.on{background:var(--g8);color:#fff;transform:translateY(-6px);box-shadow:0 20px 40px #1d3a2938}
+.cf-st.on p{color:#bfd2bc}.cf-st.on .more ul{color:#e3eedd;border-color:#ffffff30}
+.cf-st.on .node{background:var(--amber);box-shadow:0 0 0 2px var(--amber);transform:scale(1.15)}
+
+.cf-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cf-feat{position:relative;padding:24px 22px 26px;border:1px solid #e3e6d6;border-radius:18px;background:#fff;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.cf-feat::after{content:"";position:absolute;inset:auto -30% -60% -30%;height:70%;background:radial-gradient(closest-side,var(--tint,#e8f1dc),transparent);opacity:0;transition:opacity .35s}
+.cf-feat:hover{transform:translateY(-6px);box-shadow:0 20px 40px #1d3a291a}
+.cf-feat:hover::after{opacity:1}
+.cf-feat>*{position:relative;z-index:1}
+.cf-feat .ic{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;margin:18px 0 16px;font-size:23px;background:var(--tint,#e8f1dc)}
+.cf-feat h3{font-size:19px;margin:0 0 8px}
+.cf-feat p{margin:0;color:var(--mut);font-size:13px;line-height:1.75}
+
+.cf-faq{max-width:780px;margin-top:8px}
+.cf-faq details{border-bottom:1px solid #dfe3d2;padding:18px 4px}
+.cf-faq summary{display:flex;justify-content:space-between;gap:20px;cursor:pointer;list-style:none;font:600 17px Fraunces,serif}
+.cf-faq summary::-webkit-details-marker{display:none}
+.cf-faq summary::after{content:"+";font:400 26px/1 Inter;color:var(--g5);transition:transform .3s}
+.cf-faq details[open] summary::after{transform:rotate(45deg)}
+.cf-faq details p{margin:12px 0 0;color:var(--mut);line-height:1.8;font-size:14px;max-width:660px}
+
+.cf-final{background:linear-gradient(150deg,var(--g9),var(--g7));color:#f1efdf;border-radius:26px;padding:clamp(34px,6vw,70px);display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
+.cf-final h2{font-size:clamp(28px,4vw,46px);margin:12px 0 0;line-height:1.1;color:#f7f4e6}
+.cf-final h2 em{color:var(--amber);font-weight:500}
+.cf-final .cf-mono{color:#b2c7ab}
+
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}
+
+@media(max-width:960px){.cf-hero-grid{grid-template-columns:1fr}.cf-sim{transform:none!important}.cf-tabs{grid-template-columns:1fr}.cf-tablist{grid-template-columns:repeat(3,1fr)}.cf-tab small{display:none}.cf-tab{flex-direction:column;text-align:center;padding:14px 8px}.cf-feats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.cf-tl{grid-template-columns:1fr}.cf-tl::before{display:none}.cf-feats{grid-template-columns:1fr}.cf-gauge-row{grid-template-columns:1fr;justify-items:center}.cf-gauge-row>div:last-child{width:100%}.cf-bar{grid-template-columns:76px 1fr 56px}.cf-tablist b{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.cf-cane .stalk,.cf-marq div,.cf-dot,.cf-type{animation:none!important}.cf-sim{transform:none!important}}
+</style>
+
+<div class="cf-home">
+
+<section class="cf-hero">
+  <div class="cf-wrap cf-hero-grid">
+    <div>
+      <span class="cf-pill cf-mono"><span class="cf-dot"></span> Sugarcane decision support</span>
+      <h1>Know your <em>cane field</em><br>before it <span class="cf-type" id="typer">needs water</span></h1>
+      <p class="cf-lede">Canefield turns soil moisture, crop stage and field conditions into clear actions — how many kilolitres to pump, how much fertilizer to spread, and what to watch for next.</p>
+      <div class="cf-cta">
+        <a class="cf-btn amber" href="{{ url_for('register') }}">Create your farm space <span>→</span></a>
+        <a class="cf-btn ghost" href="#try">Try the live demo ↓</a>
+      </div>
+      <div class="cf-hero-stats">
+        <div><b data-count="{{ dataset_stats.rows or 0 }}">0</b><span class="cf-mono">Research records</span></div>
+        <div><b data-count="{{ dataset_stats.yield_avg or 0 }}" data-dec="1">0</b><span class="cf-mono">Avg q / acre</span></div>
+        <div><b data-count="3">0</b><span class="cf-mono">Crop stages</span></div>
+      </div>
+    </div>
+
+    <div class="cf-sim" id="try" aria-label="Interactive field simulator">
+      <div class="cf-sim-head cf-mono"><span>Live field simulator</span><b>Drag the sliders ↓</b></div>
+      <div class="cf-stage" id="simStage">
+        <button class="on" data-s="Early">Early</button><button data-s="Mid">Mid</button><button data-s="Late">Late</button>
+      </div>
+      <div class="cf-gauge-row">
+        <div class="cf-gauge">
+          <svg viewBox="0 0 120 120"><circle class="trk" cx="60" cy="60" r="50" fill="none" stroke-width="12"/><circle class="val" id="gVal" cx="60" cy="60" r="50" fill="none" stroke-width="12" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"/></svg>
+          <div class="cf-gauge-c"><b id="gNum">0%</b><small id="gTarget">target 24%</small></div>
+        </div>
+        <div>
+          <div class="cf-slide"><label for="sM">Soil moisture <output id="oM">18%</output></label><input id="sM" type="range" min="5" max="45" value="18"></div>
+          <div class="cf-slide"><label for="sT">Temperature <output id="oT">30°C</output></label><input id="sT" type="range" min="15" max="42" value="30"></div>
+          <div class="cf-slide" style="margin-bottom:0"><label for="sH">Humidity <output id="oH">65%</output></label><input id="sH" type="range" min="30" max="100" value="65"></div>
+        </div>
+      </div>
+      <div class="cf-verdict low" id="verdict">
+        <span class="cf-mono">Recommendation</span>
+        <h3 id="vTitle">—</h3>
+        <p id="vText"></p>
+        <div class="cf-chips" id="vChips"></div>
+      </div>
+    </div>
+  </div>
+  <div class="cf-hero-pad"></div>
+  <div class="cf-cane" aria-hidden="true"><svg viewBox="0 0 1200 160" preserveAspectRatio="none" id="caneSvg"></svg></div>
+</section>
+
+<div class="cf-marq cf-mono" aria-hidden="true"><div id="marq"></div></div>
+
+<section class="cf-sec" id="how">
+  <div class="cf-wrap">
+    <div class="cf-head rv">
+      <div><span class="cf-mono" style="color:var(--g5)">How it thinks</span><h2>Three questions,<br><em>answered every time.</em></h2></div>
+      <p class="sub">Pick one to see the logic behind it. Every recommendation also explains itself, so you can check the reasoning against what you see in the field.</p>
+    </div>
+    <div class="cf-tabs rv d1">
+      <div class="cf-tablist">
+        <button class="cf-tab on" data-t="water"><span class="ic">💧</span><span><b>How much water?</b><small>Deficit → kilolitres → pump hours</small></span></button>
+        <button class="cf-tab" data-t="feed"><span class="ic">🧪</span><span><b>What to apply?</b><small>Stage-wise DAP, urea &amp; MOP</small></span></button>
+        <button class="cf-tab" data-t="watch"><span class="ic">🛡️</span><span><b>What to watch?</b><small>pH, waterlogging &amp; disease alerts</small></span></button>
+      </div>
+      <div>
+        <div class="cf-panel on" id="p-water">
+          <span class="cf-mono" style="color:var(--g5)">Irrigation engine</span>
+          <h3>From a moisture reading to a pumping plan.</h3>
+          <p>Canefield compares your soil moisture with the target for the crop stage, converts the gap into millimetres of water over your root zone, adjusts for how efficient your irrigation method is, and scales it to your acreage.</p>
+          <div class="cf-formula">deficit = (target − moisture) ÷ target<br>depth&nbsp;&nbsp;= deficit × root zone ÷ efficiency<br>volume = depth × acres → kL → pump hours</div>
+          <div class="cf-bars">
+            <div class="cf-bar"><span>Drip</span><i><s style="--w:90%"></s></i><span>90%</span></div>
+            <div class="cf-bar"><span>Sprinkler</span><i><s style="--w:75%"></s></i><span>75%</span></div>
+            <div class="cf-bar"><span>Furrow</span><i><s style="--w:60%"></s></i><span>60%</span></div>
+            <div class="cf-bar"><span>Flood</span><i><s style="--w:50%"></s></i><span>50%</span></div>
+          </div>
+        </div>
+        <div class="cf-panel" id="p-feed">
+          <span class="cf-mono" style="color:var(--g5)">Fertilizer planner</span>
+          <h3>The right nutrient for the right month.</h3>
+          <p>Each growth stage has a different need. Canefield picks the product, multiplies the guideline rate by your farm area and gives you a ready-to-buy quantity in kilograms.</p>
+          <div class="cf-bars">
+            <div class="cf-bar"><span>Early · DAP</span><i><s style="--w:91%"></s></i><span>50 kg/ac</span></div>
+            <div class="cf-bar"><span>Mid · Urea</span><i><s style="--w:100%"></s></i><span>55 kg/ac</span></div>
+            <div class="cf-bar"><span>Mid · MOP</span><i><s style="--w:55%"></s></i><span>30 kg/ac</span></div>
+            <div class="cf-bar"><span>Late · MOP</span><i><s style="--w:36%"></s></i><span>20 kg/ac</span></div>
+          </div>
+          <div class="cf-formula">Quantities are guideline rates — always confirm with a soil test.</div>
+        </div>
+        <div class="cf-panel" id="p-watch">
+          <span class="cf-mono" style="color:var(--g5)">Early-warning alerts</span>
+          <h3>Small problems, flagged before they grow.</h3>
+          <p>Acidic or alkaline soil, waterlogged fields, missing readings and high disease-screening risk all surface as alerts with a plain-language reason and a suggested next step.</p>
+          <div class="cf-formula">pH &lt; 5.5 → liming alert<br>pH &gt; 8.0 → gypsum / organic matter alert<br>moisture &gt; target + 10 → hold irrigation<br>humidity ≥ 82% &amp; temp ≥ 28°C → high disease risk</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cf-sec cream" id="stages">
+  <div class="cf-wrap">
+    <div class="cf-head rv">
+      <div><span class="cf-mono" style="color:var(--g5)">Season view</span><h2>Advice that <em>moves with the crop.</em></h2></div>
+      <p class="sub">Tap a stage to see how targets and priorities change from planting to ripening.</p>
+    </div>
+    <div class="cf-tl rv d1" id="timeline">
+      <button class="cf-st on"><span class="node">🌱</span><h3>Early</h3><p>Establishment &amp; tillering</p>
+        <div class="more"><div><ul><li>Moisture target <b>24%</b></li><li>Shallow roots — light, frequent water</li><li>Phosphorus (DAP) for root growth</li></ul></div></div></button>
+      <button class="cf-st"><span class="node">🌿</span><h3>Mid</h3><p>Grand growth</p>
+        <div class="more"><div><ul><li>Moisture target <b>28%</b></li><li>Peak water &amp; nitrogen demand</li><li>Urea + MOP split applications</li></ul></div></div></button>
+      <button class="cf-st"><span class="node">🎋</span><h3>Late</h3><p>Ripening &amp; maturity</p>
+        <div class="more"><div><ul><li>Moisture target <b>20%</b></li><li>Taper water to concentrate sugar</li><li>Light potash for sucrose build-up</li></ul></div></div></button>
+    </div>
+  </div>
+</section>
+
+<section class="cf-sec" id="features">
+  <div class="cf-wrap">
+    <div class="cf-head rv">
+      <div><span class="cf-mono" style="color:var(--g5)">Inside Canefield</span><h2>One workspace,<br><em>every field.</em></h2></div>
+      <p class="sub">Built on a relational database of farms, recommendations and advisories — so everything you do is saved, searchable and exportable.</p>
+    </div>
+    <div class="cf-feats">
+      <article class="cf-feat rv" style="--tint:#e2eef6"><span class="cf-mono" style="color:var(--mut)">01 / Act</span><div class="ic">✅</div><h3>Action feed</h3><p>Prioritised to-dos with severity, a "why" for each, and one-tap Mark as done or Dismiss.</p></article>
+      <article class="cf-feat rv d1" style="--tint:#e7f1dc"><span class="cf-mono" style="color:var(--mut)">02 / Monitor</span><div class="ic">📊</div><h3>Farm dashboard</h3><p>Moisture gauges, pH markers, crop-stage progress and yield trends for each of your farms.</p></article>
+      <article class="cf-feat rv d2" style="--tint:#f7ecd2"><span class="cf-mono" style="color:var(--mut)">03 / Predict</span><div class="ic">📈</div><h3>Yield estimate</h3><p>A model trained on the research dataset gives an indicative quintals-per-acre figure.</p></article>
+      <article class="cf-feat rv d3" style="--tint:#eadff0"><span class="cf-mono" style="color:var(--mut)">04 / Record</span><div class="ic">🗂️</div><h3>History &amp; export</h3><p>Search every past field check and export it as CSV or PDF for your records.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="cf-sec cream">
+  <div class="cf-wrap">
+    <div class="cf-head rv"><div><span class="cf-mono" style="color:var(--g5)">Good to know</span><h2>Straight <em>answers.</em></h2></div></div>
+    <div class="cf-faq rv d1">
+      <details open><summary>Does it use live sensors or weather?</summary><p>Not yet. Canefield works from the readings you enter and the research dataset. Update your farm's soil-moisture value and re-check to get a fresh plan.</p></details>
+      <details><summary>How accurate are the quantities?</summary><p>They are guideline estimates based on standard rates, root-zone depth and irrigation efficiency. Treat them as a starting point and verify with a soil test and local agricultural advice.</p></details>
+      <details><summary>What happens when I mark an irrigation as done?</summary><p>The action moves to your history and the farm's soil moisture is reset to its stage target, so the next re-check reflects the water you applied.</p></details>
+      <details><summary>Is my farm data private?</summary><p>Yes. Each farmer has a separate account, and farms, recommendations and advisories are stored against that account in the database.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="cf-sec" style="padding-top:0;background:var(--cream)">
+  <div class="cf-wrap">
+    <div class="cf-final rv">
+      <div><span class="cf-mono">Ready when you are</span><h2>Your next field decision,<br><em>made with a clear picture.</em></h2></div>
+      <a class="cf-btn amber" href="{{ url_for('register') }}">Set up your account →</a>
+    </div>
+  </div>
+</section>
+</div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  const words=['needs water','needs potash','gets thirsty','is ready to ripen'];
+  const t=$('#typer'); let wi=0,ci=words[0].length,del=true;
+  if(!reduce){(function tick(){
+    const w=words[wi]; ci+=del?-1:1; t.textContent=w.slice(0,ci);
+    let d=del?38:70;
+    if(!del&&ci===w.length){del=true;d=1700}
+    else if(del&&ci===0){del=false;wi=(wi+1)%words.length;d=300}
+    setTimeout(tick,d);
+  })()}
+
+  const m=['Irrigation plans','Fertilizer schedules','Soil pH alerts','Disease screening','Yield estimates','Advisory history'];
+  $('#marq').innerHTML=m.map(x=>'<span>'+x+'</span><span>✳</span>').join('').repeat(4);
+
+  (function(){
+    let h='';
+    for(let i=0;i<46;i++){
+      const x=i*26+Math.random()*14, ht=70+Math.random()*80, c=['#274a35','#2f5a3f','#1f3d2b','#36694a'][i%4], lean=(Math.random()-.5)*10;
+      h+='<g class="stalk"><path d="M'+x+' 160 Q'+(x+lean)+' '+(160-ht*.6)+' '+(x+lean*1.6)+' '+(160-ht)+'" stroke="'+c+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>'
+        +'<path d="M'+(x+lean*1.6)+' '+(160-ht)+' q-26 -12 -40 6 q22 -2 40 -6 q24 -14 42 4 q-22 -2 -42 2z" fill="'+c+'"/></g>';
+    }
+    $('#caneSvg').innerHTML=h;
+  })();
+
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return; io.unobserve(e.target);
+    const el=e.target, end=+el.dataset.count, dec=+(el.dataset.dec||0), t0=performance.now(), dur=reduce?1:1400;
+    (function f(n){const p=Math.min(1,(n-t0)/dur), v=end*(1-Math.pow(1-p,3));
+      el.textContent=dec?v.toFixed(dec):Math.round(v).toLocaleString(); if(p<1)requestAnimationFrame(f)})(t0);
+  }),{threshold:.6});
+  $$('[data-count]').forEach(c=>io.observe(c));
+
+  const rio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');rio.unobserve(e.target)}}),{threshold:.14});
+  $$('.rv').forEach(el=>rio.observe(el));
+
+  const sim=$('#try');
+  if(!reduce&&matchMedia('(hover:hover)').matches){
+    sim.addEventListener('mousemove',e=>{const r=sim.getBoundingClientRect();
+      sim.style.setProperty('--ry',(((e.clientX-r.left)/r.width-.5)*7).toFixed(2)+'deg');
+      sim.style.setProperty('--rx',(-((e.clientY-r.top)/r.height-.5)*5).toFixed(2)+'deg')});
+    sim.addEventListener('mouseleave',()=>{sim.style.setProperty('--ry','-4deg');sim.style.setProperty('--rx','2deg')});
+  }
+
+  /* simulator: same rules as advisor.py, shown per acre on Drip-equivalent (75% efficiency) */
+  const TARGET={Early:24,Mid:28,Late:20}, ROOT={Early:300,Mid:600,Late:750};
+  let stage='Early';
+  const sM=$('#sM'),sT=$('#sT'),sH=$('#sH');
+  const fill=el=>el.style.setProperty('--p',((el.value-el.min)/(el.max-el.min)*100)+'%');
+  function run(){
+    [sM,sT,sH].forEach(fill);
+    const mo=+sM.value, te=+sT.value, hu=+sH.value, tg=TARGET[stage];
+    $('#oM').textContent=mo+'%'; $('#oT').textContent=te+'°C'; $('#oH').textContent=hu+'%';
+    $('#gTarget').textContent='target '+tg+'%'; $('#gNum').textContent=mo+'%';
+    const g=$('#gVal'); g.style.strokeDashoffset=314-314*Math.min(1,mo/45);
+    const def=(tg-mo)/tg*100, chips=[]; let cls='ok',title,text;
+    if(def>3){
+      cls='low';
+      const depth=(tg-mo)/100*ROOT[stage]/.75, kl=depth*4046.86/1000, hrs=kl/36;
+      title=def>25?'Irrigate today':'Top up irrigation soon';
+      text='Moisture is '+Math.round(def)+'% below the '+stage+'-stage target. About '+Math.round(depth)+' mm of water is needed across the root zone.';
+      chips.push('<span class="cf-chip">'+Math.round(def)+'% deficit</span>','<span class="cf-chip">≈ '+Math.round(kl)+' kL / acre</span>','<span class="cf-chip">'+hrs.toFixed(1)+' h pump / acre</span>');
+    }else if(mo>tg+10){
+      cls='wet'; title='Hold irrigation — soil is very wet';
+      text='Moisture is well above the target. Check drainage and watch for waterlogging.';
+      chips.push('<span class="cf-chip">+'+(mo-tg)+' pts over target</span>');
+    }else{
+      title='Moisture on target'; text='You are within range for the '+stage+' stage. Re-check after the next rain or in a few days.';
+      chips.push('<span class="cf-chip">✓ on track</span>');
+    }
+    const risk=(hu>=82&&te>=28)?'High':((hu>=68||te>=34)?'Moderate':'Lower');
+    chips.push('<span class="cf-chip risk-'+risk+'">Disease risk: '+risk+'</span>');
+    $('#verdict').className='cf-verdict '+cls; $('#vTitle').textContent=title; $('#vText').textContent=text; $('#vChips').innerHTML=chips.join('');
+    g.style.stroke=cls==='low'?'#e3a93b':(cls==='wet'?'#5aa0c4':'#4c8159');
+  }
+  [sM,sT,sH].forEach(el=>el.addEventListener('input',run));
+  $$('#simStage button').forEach(b=>b.addEventListener('click',()=>{
+    $$('#simStage button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); stage=b.dataset.s; run()}));
+  setTimeout(run,250);
+
+  $$('.cf-tab').forEach(b=>b.addEventListener('click',()=>{
+    $$('.cf-tab').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    $$('.cf-panel').forEach(p=>p.classList.remove('on')); $('#p-'+b.dataset.t).classList.add('on')}));
+  $$('#timeline .cf-st').forEach(b=>b.addEventListener('click',()=>{
+    $$('#timeline .cf-st').forEach(x=>x.classList.remove('on')); b.classList.add('on')}));
+})();
+</script>
+{% endblock %}

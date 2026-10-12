@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Canefield{% endblock %}
+{% block content %}
+<style>
+.db{--g9:#14291c;--g8:#1d3a29;--g7:#2a5239;--g5:#4c8159;--amber:#e3a93b;--ink:#1c2a20;--mut:#6c7b6e;--line:#e3e6d6;color:var(--ink)}
+.db *{box-sizing:border-box}
+.db h1,.db h2,.db h3{font-family:Fraunces,Georgia,serif;letter-spacing:-.02em}
+.db-mono{font-family:'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;font-size:10px;font-weight:700}
+.db-head{display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap;margin-bottom:24px}
+.db-head h1{font-size:clamp(28px,3.6vw,42px);margin:8px 0 6px;color:var(--g9);font-weight:800}
+.db-head p{margin:0;color:var(--mut);font-size:14px}
+.db-btn{display:inline-flex;align-items:center;gap:9px;padding:12px 18px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;border:1.5px solid var(--g8);background:var(--g8);color:#fff;cursor:pointer;transition:all .2s;font-family:inherit}
+.db-btn:hover{transform:translateY(-1px);background:var(--g7)}
+.db-btn.ghost{background:#fff;color:var(--g8)}
+.db-btn.ghost:hover{background:#f1f4e6}
+.db-btn.sm{padding:8px 12px;font-size:12px;border-radius:8px}
+.db-btn.danger{background:#fff;color:#a43d30;border-color:#ebc8c1}
+.db-btn.danger:hover{background:#fbe9e5}
+
+.db-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.db-kpi{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .25s,box-shadow .25s}
+a.db-kpi:hover{transform:translateY(-3px);box-shadow:0 14px 30px #1d3a2914}
+.db-kpi::after{content:"";position:absolute;right:-24px;top:-24px;width:88px;height:88px;border-radius:50%;background:var(--t,#eaf1dd);opacity:.8}
+.db-kpi>*{position:relative;z-index:1}
+.db-kpi .n{font:800 34px Fraunces,serif;color:var(--g9);margin:12px 0 4px;line-height:1}
+.db-kpi .n small{font:600 13px Inter,sans-serif;color:var(--mut);margin-left:4px}
+.db-kpi p{margin:0;font-size:12px;color:var(--mut);line-height:1.5}
+.db-kpi .tag{display:inline-block;margin-top:9px;padding:3px 9px;border-radius:6px;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
+.tag.red{background:#fae3de;color:#a43d30}.tag.green{background:#e3f1de;color:#2f6a3c}.tag.amber{background:#fcefcf;color:#8a6417}
+
+.db-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:22px}
+.db-panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}
+.db-ph{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+.db-ph h2{font-size:22px;margin:0;color:var(--g9)}
+.db-ph a{font-size:12.5px;font-weight:700;color:var(--g5);text-decoration:none}
+.db-ph a:hover{text-decoration:underline}
+.db-sub{color:var(--mut);font-size:12.5px;margin:-8px 0 16px;line-height:1.6}
+
+.db-pr{display:grid;grid-template-columns:42px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid #eef0e4}
+.db-pr:first-of-type{border-top:0}
+.db-pi{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;font-size:19px}
+.db-pi.irrigation{background:#eaf3fa}.db-pi.fertilizer{background:#fcf1de}.db-pi.alert{background:#fbe9e5}
+.db-pt{font-weight:700;font-size:14px;line-height:1.4;color:var(--g9)}
+.db-pt small{display:block;font-weight:500;color:var(--mut);font-size:12px;margin-top:3px}
+.sev{padding:4px 9px;border-radius:6px;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
+.sev.high{background:#fae3de;color:#a43d30}.sev.medium{background:#fcefcf;color:#8a6417}.sev.low{background:#e3f1de;color:#2f6a3c}
+.db-clear{text-align:center;padding:26px 10px;color:var(--mut);font-size:14px}
+.db-clear b{display:block;font:700 20px Fraunces,serif;color:var(--g9);margin-bottom:6px}
+
+.db-side .row{display:flex;justify-content:space-between;font-size:12.5px;margin:0 0 7px;color:#4a5a4d}
+.db-stack{display:flex;height:12px;border-radius:7px;overflow:hidden;background:#ece9d6;margin-bottom:12px}
+.db-stack i{display:block;height:100%}
+.db-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-bottom:20px}
+.db-leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.db-sep{border:0;border-top:1px dashed #dcdfca;margin:18px 0}
+.db-ring{display:flex;align-items:center;gap:16px}
+.db-ring svg{width:74px;height:74px;transform:rotate(-90deg);flex-shrink:0}
+.db-ring b{font:800 22px Fraunces,serif;color:var(--g9)}
+.db-ring p{margin:2px 0 0;font-size:12.5px;color:var(--mut);line-height:1.5}
+
+.db-sec{margin:34px 0 14px;display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap}
+.db-sec h2{font-size:26px;margin:0;color:var(--g9)}
+.db-sec p{margin:5px 0 0;color:var(--mut);font-size:13px}
+.db-farms{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.fc{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px;transition:box-shadow .25s,transform .25s}
+.fc:hover{box-shadow:0 14px 30px #1d3a2912;transform:translateY(-2px)}
+.fc-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.fc-top h3{font-size:20px;margin:0 0 3px;color:var(--g9)}
+.fc-top p{margin:0;font-size:12.5px;color:var(--mut)}
+.pill{padding:5px 10px;border-radius:99px;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.pill.ok{background:#e3f1de;color:#2f6a3c}.pill.low{background:#fcefcf;color:#8a6417}.pill.wet{background:#e2eef6;color:#2f6a94}.pill.unknown{background:#eee;color:#666}
+.gl{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:#4a5a4d;margin-bottom:6px}
+.gl span:last-child{color:var(--mut);font-weight:600}
+.mbar{position:relative;height:12px;border-radius:7px;background:#ece9d6}
+.mbar .band{position:absolute;top:0;bottom:0;background:#bfdcb3;border-radius:2px}
+.mbar .fillm{position:absolute;left:0;top:0;bottom:0;border-radius:7px 0 0 7px;background:var(--g5);opacity:.9;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.mbar.low .fillm{background:var(--amber)}.mbar.wet .fillm{background:#5aa0c4}
+.mbar .knob{position:absolute;top:-4px;width:4px;height:20px;border-radius:2px;background:var(--g9)}
+.pbar{position:relative;height:10px;border-radius:6px;background:linear-gradient(90deg,#e08a73 0,#e9c86a 16%,#8dbf79 28%,#8dbf79 67%,#e9c86a 80%,#7ea3d6 100%)}
+.pbar i{position:absolute;top:-4px;width:4px;height:18px;border-radius:2px;background:var(--g9);box-shadow:0 0 0 2px #fff}
+.pscale{display:flex;justify-content:space-between;font:600 9.5px 'JetBrains Mono',monospace;color:#9aa391;margin-top:5px}
+.steps{display:flex;align-items:center}
+.steps .s{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;font-size:10.5px;font-weight:700;color:#9aa391}
+.steps .s::before{content:"";width:14px;height:14px;border-radius:50%;background:#e3dfca;border:3px solid #fff;box-shadow:0 0 0 1.5px #d4d0b8;z-index:1}
+.steps .s::after{content:"";position:absolute;top:6px;left:-50%;width:100%;height:3px;background:#e3dfca}
+.steps .s:first-child::after{display:none}
+.steps .s.done::before,.steps .s.now::before{background:var(--g5);box-shadow:0 0 0 1.5px var(--g5)}
+.steps .s.done::after,.steps .s.now::after{background:var(--g5)}
+.steps .s.now{color:var(--g8)}.steps .s.now::before{background:var(--amber);box-shadow:0 0 0 1.5px var(--amber)}
+.fc-last{padding:12px 14px;border-radius:12px;background:#f8f6ea;font-size:12.5px;color:#4a5a4d;line-height:1.6;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.fc-last b{color:var(--g9)}
+.fc-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.fc-acts form{margin:0}
+.fc-add{display:grid;place-items:center;text-align:center;border:2px dashed #cfd5bd;background:#fbfaf1;color:var(--g7);text-decoration:none;min-height:240px;font-weight:700}
+.fc-add span{font-size:34px;display:block;margin-bottom:6px}
+
+.db-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px}
+.spark{width:100%;height:150px}
+.spark text{font:600 10px Inter;fill:#8a937f}
+.db-table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+.db-table th{font:700 10px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);text-align:left;padding:10px;border-bottom:1px solid var(--line)}
+.db-table td{padding:13px 10px;border-bottom:1px solid #eef0e4;color:#44574a}
+.db-tw{overflow-x:auto}
+.rk{padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.rk-High{background:#fae3de;color:#a43d30}.rk-Moderate{background:#fcefcf;color:#8a6417}.rk-Lower,.rk-Low{background:#e3f1de;color:#2f6a3c}
+
+.db-an summary{cursor:pointer;list-style:none}
+.db-an summary::-webkit-details-marker{display:none}
+.db-an summary .db-sec{margin-top:34px}
+.db-an summary h2::after{content:" ▾";font-size:16px;color:var(--g5)}
+.dash-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.dash-panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}
+.dash-panel h3{font-size:18px;margin:0 0 5px;color:var(--g9)}
+.dash-panel .sub{font-size:12px;color:var(--mut);margin:0 0 14px;line-height:1.6}
+.dash-chart{height:245px;position:relative;width:100%}
+.dash-chart canvas{width:100%!important;height:100%!important}
+.dash-status{font-size:12px;color:var(--mut);line-height:1.7;padding:8px 0}
+.dash-footnote{font-size:11.5px;color:var(--mut);line-height:1.7;margin-top:14px}
+
+.onb{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.onb a{display:block;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;text-decoration:none;color:inherit;transition:all .25s}
+.onb a:hover{transform:translateY(-3px);box-shadow:0 14px 30px #1d3a2914}
+.onb .no{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--g8);color:#fff;font:800 14px Inter;margin-bottom:12px}
+.onb b{display:block;font:700 17px Fraunces,serif;color:var(--g9);margin-bottom:5px}
+.onb p{margin:0;font-size:12.5px;color:var(--mut);line-height:1.6}
+
+@media(max-width:980px){.db-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.db-grid,.db-two{grid-template-columns:1fr}}
+@media(max-width:640px){.dash-chart-grid,.onb{grid-template-columns:1fr}.db-farms{grid-template-columns:1fr}.db-pr{grid-template-columns:38px 1fr}.db-pr .sev{grid-column:2;justify-self:start}.db-kpi{padding:16px}.db-kpi .n{font-size:28px}}
+</style>
+
+<div class="db">
+  <section class="db-head">
+    <div>
+      <span class="db-mono" style="color:var(--g5)">Farm workspace</span>
+      <h1>Welcome back, {{ session.get('name','Farmer').split(' ')[0] }}</h1>
+      <p>{% if stats.farms==0 %}Add your first farm to start getting recommendations.{% elif stats.pending %}You have <b>{{ stats.pending }}</b> pending action{{ 's' if stats.pending!=1 }}{% if stats.high %}, <b style="color:#a43d30">{{ stats.high }} high priority</b>{% endif %}.{% else %}All caught up — no pending actions on your farms.{% endif %}</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="db-btn ghost" href="{{ url_for('farm_new') }}">＋ Add farm</a>
+      <a class="db-btn" href="{{ url_for('advisory') }}">Open recommendations →</a>
+    </div>
+  </section>
+
+  {% if stats.farms==0 %}
+  <section class="onb">
+    <a href="{{ url_for('farm_new') }}"><span class="no">1</span><b>Add a farm</b><p>Enter area, soil type, pH, moisture, crop stage and irrigation method.</p></a>
+    <a href="{{ url_for('advisory') }}"><span class="no">2</span><b>Get recommendations</b><p>Receive quantified irrigation and fertilizer actions with the reasoning behind each.</p></a>
+    <a href="{{ url_for('field_check') }}"><span class="no">3</span><b>Run a field check</b><p>Enter weather and nutrient readings for a yield estimate and disease screen.</p></a>
+  </section>
+  {% else %}
+
+  <section class="db-kpis">
+    <div class="db-kpi" style="--t:#e6f0d8"><span class="db-mono" style="color:var(--mut)">Your farms</span>
+      <div class="n">{{ stats.farms }}<small>{{ stats.acres }} acres</small></div>
+      <p>Total area under cane in your account</p>
+      {% if needs_attention %}<span class="tag amber">{{ needs_attention }} need attention</span>{% else %}<span class="tag green">All healthy</span>{% endif %}</div>
+    <a class="db-kpi" href="{{ url_for('advisory') }}" style="--t:#fbe6e0"><span class="db-mono" style="color:var(--mut)">Pending actions</span>
+      <div class="n">{{ stats.pending }}</div>
+      <p>Irrigation, fertilizer and alerts waiting for you</p>
+      {% if stats.high %}<span class="tag red">{{ stats.high }} high priority</span>{% else %}<span class="tag green">None urgent</span>{% endif %}</a>
+    <div class="db-kpi" style="--t:#fbefcf"><span class="db-mono" style="color:var(--mut)">Avg yield estimate</span>
+      <div class="n">{% if stats.avg_yield is not none %}{{ stats.avg_yield }}<small>q/acre</small>{% else %}—{% endif %}</div>
+      <p>{% if stats.est_prod %}≈ {{ '{:,}'.format(stats.est_prod) }} quintals across your farms{% else %}Run a field check on a farm to estimate yield{% endif %}</p></div>
+    <div class="db-kpi" style="--t:#e2eef6"><span class="db-mono" style="color:var(--mut)">Actions done · 30 days</span>
+      <div class="n">{{ stats.done_30 }}</div>
+      <p>{{ stats.advisories }} field check{{ 's' if stats.advisories!=1 }} saved in total</p></div>
+  </section>
+
+  <section class="db-grid">
+    <article class="db-panel">
+      <div class="db-ph"><h2>Today's priorities</h2><a href="{{ url_for('advisory') }}">See all →</a></div>
+      {% if priorities %}
+        {% for r in priorities %}
+        <div class="db-pr">
+          <div class="db-pi {{ r.kind }}">{{ '💧' if r.kind=='irrigation' else ('🧪' if r.kind=='fertilizer' else '⚠️') }}</div>
+          <div class="db-pt">{{ r.title }}<small>{{ r.farm_name or 'General' }} · {{ ago(r.age_s) }}</small></div>
+          <span class="sev {{ r.severity }}">{{ r.severity }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="db-clear"><b>Nothing urgent 🎉</b>Re-check your fields after updating soil readings to see new actions.</div>
+      {% endif %}
+    </article>
+
+    <article class="db-panel db-side">
+      <div class="db-ph"><h2>Season snapshot</h2></div>
+      {% set early=cards|selectattr('stage_idx','equalto',0)|list|length %}{% set mid=cards|selectattr('stage_idx','equalto',1)|list|length %}{% set late=cards|selectattr('stage_idx','equalto',2)|list|length %}
+      <div class="row"><span>Crop stage mix</span><span>{{ early }} early · {{ mid }} mid · {{ late }} late</span></div>
+      <div class="db-stack">
+        <i style="width:{{ early/stats.farms*100 }}%;background:#9bc58a"></i><i style="width:{{ mid/stats.farms*100 }}%;background:#4c8159"></i><i style="width:{{ late/stats.farms*100 }}%;background:#e3a93b"></i>
+      </div>
+      <div class="db-leg"><span><i style="background:#9bc58a"></i>Early</span><span><i style="background:#4c8159"></i>Mid</span><span><i style="background:#e3a93b"></i>Late</span></div>
+      <hr class="db-sep">
+      <div class="row"><span>Disease screening (all checks)</span></div>
+      {% set rt=(risk_counts.values()|sum) or 0 %}
+      {% if rt %}
+      <div class="db-stack"><i style="width:{{ risk_counts.get('Lower',0)/rt*100 }}%;background:#7fa86f"></i><i style="width:{{ risk_counts.get('Moderate',0)/rt*100 }}%;background:#e3a93b"></i><i style="width:{{ risk_counts.get('High',0)/rt*100 }}%;background:#d1665a"></i></div>
+      <div class="db-leg" style="margin-bottom:0"><span><i style="background:#7fa86f"></i>Lower {{ risk_counts.get('Lower',0) }}</span><span><i style="background:#e3a93b"></i>Moderate {{ risk_counts.get('Moderate',0) }}</span><span><i style="background:#d1665a"></i>High {{ risk_counts.get('High',0) }}</span></div>
+      {% else %}<p class="db-sub" style="margin:0">No field checks yet — run one to see the risk mix.</p>{% endif %}
+      <hr class="db-sep">
+      {% set healthy=stats.farms-needs_attention %}
+      <div class="db-ring">
+        <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#ece9d6" stroke-width="4"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#4c8159" stroke-width="4" stroke-linecap="round" stroke-dasharray="{{ healthy/stats.farms*100 }} 100"/></svg>
+        <div><b>{{ healthy }}/{{ stats.farms }}</b><p>farms on target for moisture and soil pH</p></div>
+      </div>
+    </article>
+  </section>
+
+  <div class="db-sec"><div><h2>Your farms</h2><p>Live status from each farm profile. Update readings to keep these current.</p></div></div>
+  <section class="db-farms">
+    {% for c in cards %}{% set f=c.farm %}
+    <article class="fc">
+      <div class="fc-top">
+        <div><h3>{{ f.farm_name }}</h3><p>{{ f.district or 'District not set' }}, {{ f.state or 'India' }} · {{ f.area_acres }} acres · {{ f.soil_type or 'Soil n/a' }}</p></div>
+        <span class="pill {{ c.status }}">{{ {'ok':'On target','low':'Needs water','wet':'Too wet','unknown':'No reading'}[c.status] }}</span>
+      </div>
+      <div>
+        <div class="gl"><span>Soil moisture</span><span>{% if f.soil_moisture is not none %}{{ '%g'|format(f.soil_moisture) }}% · target {{ '%g'|format(c.target) }}%{% else %}add a reading{% endif %}</span></div>
+        <div class="mbar {{ c.status }}"><div class="band" style="left:{{ c.band_lo }}%;width:{{ c.band_w }}%"></div><div class="fillm" style="width:{{ c.moisture_pct }}%"></div>{% if f.soil_moisture is not none %}<div class="knob" style="left:calc({{ c.moisture_pct }}% - 2px)"></div>{% endif %}</div>
+      </div>
+      <div>
+        <div class="gl"><span>Soil pH</span><span>{% if f.soil_ph is not none %}{{ '%g'|format(f.soil_ph) }} · {{ {'ok':'healthy range','acidic':'acidic','alkaline':'alkaline'}[c.ph_state] }}{% else %}not set{% endif %}</span></div>
+        <div class="pbar">{% if c.ph_pct is not none %}<i style="left:calc({{ c.ph_pct }}% - 2px)"></i>{% endif %}</div>
+        <div class="pscale"><span>4</span><span>5.5</span><span>7</span><span>8</span><span>10</span></div>
+      </div>
+      <div class="steps">
+        {% for nm in ['Early','Mid','Late'] %}<div class="s {{ 'done' if loop.index0<c.stage_idx else ('now' if loop.index0==c.stage_idx else '') }}">{{ nm }}</div>{% endfor %}
+      </div>
+      <div class="fc-last">
+        {% if c.last %}<span>Last check <b>{{ c.last.created_at.strftime('%d %b') }}</b> · <span class="rk rk-{{ c.last.disease_risk }}">{{ c.last.disease_risk }} risk</span>{% if c.last.predicted_yield is not none %} · <b>{{ c.last.predicted_yield }}</b> q/ac{% endif %}</span>
+        {% else %}<span>No field check yet</span>{% endif %}
+        {% if c.pending %}<a href="{{ url_for('advisory') }}" class="sev medium" style="text-decoration:none">{{ c.pending }} pending</a>{% endif %}
+      </div>
+      <div class="fc-acts">
+        <a class="db-btn sm" href="{{ url_for('field_check', farm=f.id) }}">Run field check</a>
+        <a class="db-btn sm ghost" href="{{ url_for('farm_edit', farm_id=f.id) }}">Edit / update</a>
+        <form method="post" action="{{ url_for('farm_delete', farm_id=f.id) }}" onsubmit="return confirm('Remove this farm and its recommendations?')"><button type="submit" class="db-btn sm danger">Delete</button></form>
+      </div>
+    </article>
+    {% endfor %}
+    <a class="fc fc-add" href="{{ url_for('farm_new') }}"><div><span>＋</span>Add another farm</div></a>
+  </section>
+
+  <div class="db-sec"><div><h2>Trends &amp; activity</h2><p>How your estimates and field checks have moved over time.</p></div></div>
+  <section class="db-two">
+    <article class="db-panel">
+      <div class="db-ph"><h2 style="font-size:19px">Yield estimate trend</h2></div>
+      <p class="db-sub">Last {{ trend|length }} field check{{ 's' if trend|length!=1 }} (quintals per acre)</p>
+      {% if trend|length>=2 %}<svg class="spark" id="spark" viewBox="0 0 400 150" preserveAspectRatio="none"></svg>
+      {% else %}<div class="db-clear" style="padding:34px 0">Run at least two field checks to see a trend.</div>{% endif %}
+    </article>
+    <article class="db-panel">
+      <div class="db-ph"><h2 style="font-size:19px">Recent field checks</h2><a href="{{ url_for('history') }}">View all →</a></div>
+      {% if advisories %}
+      <div class="db-tw"><table class="db-table"><thead><tr><th>Farm</th><th>Irrigation</th><th>Risk</th><th>Yield</th><th>Date</th></tr></thead><tbody>
+        {% for a in advisories %}<tr><td>{{ a.farm_name or 'General check' }}</td><td>{{ a.irrigation }}</td><td><span class="rk rk-{{ a.disease_risk }}">{{ a.disease_risk }}</span></td><td>{% if a.predicted_yield is not none %}{{ a.predicted_yield }} q/ac{% else %}—{% endif %}</td><td>{{ a.created_at.strftime('%d %b') }}</td></tr>{% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="db-clear" style="padding:34px 0">No field checks yet. <a href="{{ url_for('field_check') }}">Run your first →</a></div>{% endif %}
+    </article>
+  </section>
+  {% endif %}
+
+  <details class="db-an" {{ 'open' if stats.farms==0 }}>
+    <summary><div class="db-sec"><div><h2>Research insights</h2><p>Patterns in the sugarcane research dataset ({{ '{:,}'.format(dataset_stats.rows) }} records) — tap to expand or collapse.</p></div></div></summary>
+    <section class="dash-chart-grid">
+      <article class="dash-panel"><h3>Weather trends</h3><p class="sub">Monthly average temperature, rainfall and humidity.</p><div class="dash-chart"><canvas id="weatherChart"></canvas></div><div id="weatherStatus" class="dash-status">Loading dataset...</div></article>
+      <article class="dash-panel"><h3>Soil moisture distribution</h3><p class="sub">Dataset records in each soil-moisture range.</p><div class="dash-chart"><canvas id="moistureChart"></canvas></div><div id="moistureStatus" class="dash-status">Loading dataset...</div></article>
+      <article class="dash-panel"><h3>Average yield by growth stage</h3><p class="sub">Recorded sugarcane yield across crop stages.</p><div class="dash-chart"><canvas id="yieldChart"></canvas></div><div id="yieldStatus" class="dash-status">Loading dataset...</div></article>
+      <article class="dash-panel"><h3>Disease record distribution</h3><p class="sub">Disease labels in the dataset.</p><div class="dash-chart"><canvas id="diseaseChart"></canvas></div><div id="diseaseStatus" class="dash-status">Loading dataset...</div></article>
+    </section>
+    <p class="dash-footnote">These charts describe the research dataset, not live sensor readings or forecasts. Yield figures are dataset averages, not predictions for your farm.</p>
+  </details>
+</div>
+
+<script>
+(function(){
+  const el=document.getElementById('spark'); if(!el) return;
+  const v={{ trend|map(attribute='predicted_yield')|list|tojson }};
+  const lo=Math.min(...v), hi=Math.max(...v), pad=(hi-lo)||1, W=400,H=150,L=10,R=10,T=18,B=22;
+  const x=i=>L+i*(W-L-R)/(v.length-1), y=n=>T+(1-(n-lo)/pad)*(H-T-B);
+  const pts=v.map((n,i)=>x(i)+','+y(n)).join(' ');
+  let s='<defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#4c8159" stop-opacity=".28"/><stop offset="1" stop-color="#4c8159" stop-opacity="0"/></linearGradient></defs>';
+  s+='<polygon points="'+x(0)+','+(H-B)+' '+pts+' '+x(v.length-1)+','+(H-B)+'" fill="url(#sg)"/>';
+  s+='<polyline points="'+pts+'" fill="none" stroke="#2a5239" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
+  v.forEach((n,i)=>{s+='<circle cx="'+x(i)+'" cy="'+y(n)+'" r="3.5" fill="#fff" stroke="#2a5239" stroke-width="2"/>';
+    if(i===0||i===v.length-1)s+='<text x="'+x(i)+'" y="'+(y(n)-9)+'" text-anchor="'+(i?'end':'start')+'">'+n+'</text>'});
+  el.innerHTML=s;
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+(async function () {
+  const rawCsvUrl = "{{ url_for('dashboard_dataset') }}";
+  const colors = {
+    green:'#386641', green2:'#75a66a', pale:'#c8ddbb',
+    orange:'#e6a15a', blue:'#609cc6', purple:'#9782bd',
+    red:'#d87969', grid:'#e9eee6'
+  };
+
+  function status(id, message) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = message;
+  }
+  function number(value) {
+    if (value === null || value === undefined || String(value).trim() === '') return NaN;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : NaN;
+  }
+  function mean(values) {
+    const valid = values.filter(Number.isFinite);
+    return valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : null;
+  }
+  function chart(id,type,labels,datasets,extra={}) {
+    const canvas = document.getElementById(id);
+    if (!canvas || !window.Chart) return;
+    new Chart(canvas,{
+      type,
+      data:{labels,datasets},
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:false,
+        plugins:{
+          legend:{display:datasets.length>1 || type==='doughnut',position:'bottom',
+            labels:{boxWidth:10,usePointStyle:true,padding:14,font:{size:10}}},
+          tooltip:{mode:'index',intersect:false}
+        },
+        scales:type==='doughnut'?{}:{
+          x:{grid:{display:false},ticks:{font:{size:10},maxRotation:35}},
+          y:{beginAtZero:true,grid:{color:colors.grid},ticks:{font:{size:10}}}
+        },
+        ...extra
+      }
+    });
+  }
+
+  try {
+    if (!window.Chart || !window.Papa) throw new Error('Chart libraries did not load. Check your internet connection.');
+
+    const response = await fetch(rawCsvUrl);
+    if (!response.ok) throw new Error('Dataset request failed: '+response.status);
+
+    const csvText = await response.text();
+    const parsed = Papa.parse(csvText,{header:true,skipEmptyLines:true});
+    const rows = parsed.data.filter(row=>row && Object.keys(row).length>1);
+    if (!rows.length) throw new Error('No dataset records were found.');
+
+    const columns = Object.keys(rows[0]);
+    const has = name=>columns.includes(name);
+    const monthCol=has('Month')?'Month':null;
+    const tempCol=has('Temp_Avg_C')?'Temp_Avg_C':null;
+    const rainCol=has('Rainfall_Total_mm')?'Rainfall_Total_mm':null;
+    const humidityCol=has('Humidity_%')?'Humidity_%':null;
+    const moistureCol=has('Soil_Moisture_%')?'Soil_Moisture_%':null;
+    const yieldCol=has('Yield_Quintal_per_Acre')?'Yield_Quintal_per_Acre':null;
+    const stageCol=has('Growth_Stage')?'Growth_Stage':null;
+    const diseaseCol=has('Disease_Type')?'Disease_Type':null;
+
+    // Weather: monthly averages in calendar order.
+    if (monthCol && (tempCol || rainCol || humidityCol)) {
+      const monthOrder=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const groups=new Map();
+      rows.forEach(row=>{
+        const raw=String(row[monthCol]||'').trim();
+        const month=monthOrder.find(m=>m.toLowerCase()===raw.slice(0,3).toLowerCase());
+        if (!month) return;
+        if (!groups.has(month)) groups.set(month,{temp:[],rain:[],humidity:[]});
+        const g=groups.get(month);
+        if(tempCol)g.temp.push(number(row[tempCol]));
+        if(rainCol)g.rain.push(number(row[rainCol]));
+        if(humidityCol)g.humidity.push(number(row[humidityCol]));
+      });
+      const labels=monthOrder.filter(m=>groups.has(m));
+      const weather=labels.map(m=>groups.get(m));
+      const datasets=[];
+      if(tempCol)datasets.push({label:'Average temperature (°C)',data:weather.map(g=>mean(g.temp)),borderColor:colors.green,backgroundColor:colors.green,tension:.25,pointRadius:3,spanGaps:true,yAxisID:'y'});
+      if(rainCol)datasets.push({label:'Average rainfall (mm)',data:weather.map(g=>mean(g.rain)),borderColor:colors.blue,backgroundColor:colors.blue,tension:.25,pointRadius:3,spanGaps:true,yAxisID:'y1'});
+      if(humidityCol)datasets.push({label:'Average humidity (%)',data:weather.map(g=>mean(g.humidity)),borderColor:colors.orange,backgroundColor:colors.orange,tension:.25,pointRadius:3,spanGaps:true,yAxisID:'y2'});
+
+      const scales={
+        x:{grid:{display:false},ticks:{font:{size:10}}},
+        y:{beginAtZero:true,position:'left',title:{display:true,text:'Temperature (°C)'},grid:{color:colors.grid}},
+        y1:{beginAtZero:true,position:'right',title:{display:true,text:'Rainfall (mm)'},grid:{drawOnChartArea:false}}
+      };
+      if(humidityCol)scales.y2={beginAtZero:true,max:100,position:'right',title:{display:true,text:'Humidity (%)'},grid:{drawOnChartArea:false},ticks:{display:false}};
+      chart('weatherChart','line',labels,datasets,{scales});
+      status('weatherStatus','Monthly averages from '+rows.length.toLocaleString()+' dataset records. Variables use separate scales.');
+    } else status('weatherStatus','Month or weather columns were not found.');
+
+    // Soil moisture distribution.
+    if(moistureCol){
+      const ranges=[
+        {label:'10–16%',min:10,max:16,count:0},
+        {label:'16–22%',min:16,max:22,count:0},
+        {label:'22–28%',min:22,max:28,count:0},
+        {label:'28–34%',min:28,max:34,count:0},
+        {label:'34–40%',min:34,max:40.000001,count:0}
+      ];
+      let valid=0,outside=0;
+      rows.forEach(row=>{
+        const n=number(row[moistureCol]);
+        if(!Number.isFinite(n))return;
+        valid++;
+        const bin=ranges.find(r=>n>=r.min&&n<r.max);
+        if(bin)bin.count++;else outside++;
+      });
+      chart('moistureChart','bar',ranges.map(r=>r.label),[{
+        label:'Number of records',data:ranges.map(r=>r.count),
+        backgroundColor:[colors.pale,colors.green2,colors.green,colors.blue,colors.orange],
+        borderRadius:6,maxBarThickness:48
+      }]);
+      status('moistureStatus',valid.toLocaleString()+' valid moisture values; '+outside.toLocaleString()+' are outside the displayed ranges.');
+    } else status('moistureStatus','Soil moisture column not found.');
+
+    // Yield by growth stage.
+    if(yieldCol&&stageCol){
+      const groups=new Map();
+      rows.forEach(row=>{
+        const stage=String(row[stageCol]||'').trim(), value=number(row[yieldCol]);
+        if(!stage||!Number.isFinite(value))return;
+        if(!groups.has(stage))groups.set(stage,[]);
+        groups.get(stage).push(value);
+      });
+      const order=['Early','Initial','Mid','Middle','Late'];
+      const entries=Array.from(groups.entries()).sort((a,b)=>{
+        const ai=order.findIndex(s=>s.toLowerCase()===a[0].toLowerCase());
+        const bi=order.findIndex(s=>s.toLowerCase()===b[0].toLowerCase());
+        if(ai!==-1&&bi!==-1)return ai-bi;
+        if(ai!==-1)return -1;
+        if(bi!==-1)return 1;
+        return a[0].localeCompare(b[0]);
+      });
+      chart('yieldChart','bar',entries.map(x=>x[0]),[{
+        label:'Average yield (quintals/acre)',
+        data:entries.map(x=>Number(mean(x[1]).toFixed(1))),
+        backgroundColor:entries.map((_,i)=>[colors.green,colors.green2,colors.blue,colors.orange,colors.purple][i%5]),
+        borderRadius:6,maxBarThickness:55
+      }]);
+      status('yieldStatus',entries.map(([stage,values])=>stage+': '+mean(values).toFixed(1)+' q/ac ('+values.length.toLocaleString()+' records)').join(' · '));
+    } else status('yieldStatus','Growth stage or yield column not found.');
+
+    // Disease label distribution.
+    if(diseaseCol){
+      const counts=new Map();
+      let missing=0;
+      rows.forEach(row=>{
+        const disease=String(row[diseaseCol]||'').trim();
+        if(!disease||/^(nan|null|none|na|n\/a)$/i.test(disease)){missing++;return;}
+        counts.set(disease,(counts.get(disease)||0)+1);
+      });
+      const entries=Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]);
+      const top=entries.slice(0,7);
+      if(entries.length>7)top.push(['Other recorded labels',entries.slice(7).reduce((s,x)=>s+x[1],0)]);
+      if(top.length){
+        chart('diseaseChart','doughnut',top.map(x=>x[0]),[{
+          label:'Recorded rows',data:top.map(x=>x[1]),
+          backgroundColor:[colors.green,colors.green2,colors.blue,colors.orange,colors.purple,colors.red,'#a9b7a1','#d5dfce'],
+          borderWidth:2,borderColor:'#fff'
+        }]);
+        const total=entries.reduce((s,x)=>s+x[1],0);
+        status('diseaseStatus',total.toLocaleString()+' records have disease labels; '+missing.toLocaleString()+' records have missing labels.');
+      }else status('diseaseStatus','No disease labels were found.');
+    }else status('diseaseStatus','Disease column not found.');
+
+  }catch(error){
+    console.error('Canefield dashboard charts:',error);
+    ['weatherStatus','moistureStatus','yieldStatus','diseaseStatus'].forEach(id=>status(id,'Charts could not load: '+error.message));
+  }
+})();
+</script>
+
+{% endblock %}

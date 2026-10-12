@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block title %}Recommendations — Canefield{% endblock %}
+{% block content %}
+<style>
+.rc{--g9:#14291c;--g8:#1d3a29;--g7:#2a5239;--g5:#4c8159;--amber:#e3a93b;--ink:#1c2a20;--mut:#6c7b6e;--line:#e3e6d6;color:var(--ink)}
+.rc *{box-sizing:border-box}
+.rc h1,.rc h2,.rc h3{font-family:Fraunces,Georgia,serif;letter-spacing:-.02em}
+.rc-mono{font-family:'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;font-size:10px;font-weight:700}
+.rc-top{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+.rc-top h1{font-size:clamp(30px,4vw,44px);margin:8px 0 6px;color:var(--g9);font-weight:800}
+.rc-top p{margin:0;color:var(--mut);font-size:14px}
+.rc-btn{display:inline-flex;align-items:center;gap:9px;padding:12px 18px;border-radius:10px;border:1.5px solid var(--g8);background:#fff;color:var(--g8);font:700 12px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:all .2s}
+.rc-btn:hover{background:var(--g8);color:#fff;transform:translateY(-1px)}
+.rc-btn svg{width:16px;height:16px}
+.rc-btn.spin svg{animation:rcspin .8s linear infinite}
+@keyframes rcspin{to{transform:rotate(360deg)}}
+.rc-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.rc-filter{display:flex;gap:6px;flex-wrap:wrap}
+.rc-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 15px;border-radius:10px;border:1px solid var(--line);background:#fff;color:#55655a;font:700 12px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.rc-chip:hover{border-color:var(--g5)}
+.rc-chip em{font-style:normal;display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#eef1e3;font-size:10px}
+.rc-chip.on{background:var(--g8);color:#fff;border-color:var(--g8)}
+.rc-chip.on em{background:var(--amber);color:#2b2108}
+.rc-sum{display:flex;gap:16px;font-size:12px;color:var(--mut)}
+.rc-sum b{color:var(--ink)}
+.rc-sum i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.rc-h2{display:flex;align-items:baseline;gap:10px;margin:8px 0 16px}
+.rc-h2 h2{font-size:26px;margin:0;color:var(--g9)}
+.rc-h2 span{color:var(--mut);font-size:13px}
+
+.rc-card{position:relative;display:grid;grid-template-columns:56px 1fr;gap:20px;padding:24px;margin-bottom:14px;background:#fff;border:1px solid var(--line);border-left:5px solid var(--sev);border-radius:16px;box-shadow:0 6px 22px #1d3a290a;transition:transform .35s,opacity .35s,max-height .4s,margin .4s,padding .4s;max-height:900px;overflow:hidden}
+.rc-card:hover{box-shadow:0 12px 30px #1d3a2914}
+.rc-card.high{--sev:#d1665a}.rc-card.medium{--sev:#e3a93b}.rc-card.low{--sev:#7fa86f}
+.rc-card.out{opacity:0;transform:translateX(40px);max-height:0;padding-top:0;padding-bottom:0;margin-bottom:0;border-width:0}
+.rc-card.hide{display:none}
+.rc-ic{display:grid;place-items:center;width:56px;height:56px;border-radius:14px;border:1.5px solid var(--ic)}
+.rc-ic svg{width:26px;height:26px;stroke:var(--ic);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.irrigation .rc-ic{--ic:#3d82b3;background:#eaf3fa}
+.fertilizer .rc-ic{--ic:#c9822b;background:#fcf1de}
+.alert .rc-ic{--ic:#c4503f;background:#fbe9e5}
+.rc-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.rc-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;font:700 10.5px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
+.rc-badge.sev-high{background:#fae3de;color:#a43d30}.rc-badge.sev-medium{background:#fcefcf;color:#8a6417}.rc-badge.sev-low{background:#e3f1de;color:#2f6a3c}
+.rc-badge.kind{background:#eff1e6;color:#4a5a4d}
+.rc-where{color:var(--mut);font-size:12.5px}
+.rc-title{font-size:clamp(19px,2.4vw,25px);line-height:1.25;margin:0 0 12px;color:var(--g9);font-weight:700}
+.rc-metrics{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.rc-m{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:9px;background:#f4f2e4;font:700 13px 'JetBrains Mono',monospace;color:var(--g7)}
+.rc-m small{font:600 11px Inter,sans-serif;color:var(--mut)}
+.rc-why{margin:12px 0 16px}
+.rc-why summary{display:inline-flex;align-items:center;gap:9px;cursor:pointer;list-style:none;color:#4a5a4d;font:700 11.5px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;padding:4px 0}
+.rc-why summary::-webkit-details-marker{display:none}
+.rc-why summary::before{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .25s}
+.rc-why[open] summary::before{transform:rotate(225deg)}
+.rc-why p{margin:10px 0 0;padding:14px 16px;border-radius:12px;background:#f8f6ea;border:1px dashed #ddd8c0;font-size:13.5px;line-height:1.75;color:#44574a}
+.rc-act{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.rc-act form{margin:0}
+.rc-done{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border:0;border-radius:10px;background:var(--g7);color:#fff;font:700 12px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:4px 4px 0 var(--g9);transition:all .15s}
+.rc-done:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--g9)}
+.rc-done:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--g9)}
+.rc-dismiss{display:inline-flex;align-items:center;gap:8px;padding:13px 14px;border:0;background:transparent;color:#6c7b6e;font:700 12px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:10px}
+.rc-dismiss:hover{background:#f0eddc;color:#3b4c3f}
+.rc-empty{text-align:center;padding:50px 20px;background:#fff;border:1px dashed #d6dac6;border-radius:18px;color:var(--mut)}
+.rc-empty .big{font-size:46px}
+.rc-empty h3{font-size:24px;color:var(--g9);margin:12px 0 8px}
+.rc-empty p{max-width:420px;margin:0 auto 20px;line-height:1.7;font-size:14px}
+.rc-hist{margin-top:34px}
+.rc-hist summary{cursor:pointer;list-style:none;font:700 11.5px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#4a5a4d;padding:14px 0;border-top:1px solid var(--line)}
+.rc-hist summary::-webkit-details-marker{display:none}
+.rc-hist summary::after{content:" ▾"}
+.rc-row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:13px 4px;border-bottom:1px solid #eef0e4;font-size:13px}
+.rc-row .st{font:700 10px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:6px}
+.rc-row .st.done{background:#e3f1de;color:#2f6a3c}.rc-row .st.dismissed{background:#eee;color:#666}
+.rc-row .t{color:#44574a}.rc-row .t small{display:block;color:var(--mut);margin-top:2px}
+.rc-row button{border:0;background:transparent;color:var(--g5);font-weight:700;font-size:12px;cursor:pointer;text-decoration:underline}
+.rc-note{margin-top:26px;padding:14px 18px;border-radius:12px;background:#fff6e1;border:1px solid #f0e0b6;color:#7b5f23;font-size:12.5px;line-height:1.7}
+.rc-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,30px);opacity:0;display:flex;gap:16px;align-items:center;padding:13px 18px;border-radius:12px;background:var(--g9);color:#eef4e6;font-size:13px;box-shadow:0 14px 34px #0004;transition:all .3s;z-index:60;pointer-events:none}
+.rc-toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.rc-toast button{border:0;background:transparent;color:var(--amber);font-weight:800;cursor:pointer;font-size:13px}
+@media(max-width:640px){.rc-card{grid-template-columns:1fr;gap:14px;padding:18px}.rc-ic{width:46px;height:46px}.rc-done{box-shadow:3px 3px 0 var(--g9)}.rc-sum{display:none}}
+@media print{.rc-act,.rc-bar,.rc-top .rc-btn{display:none}}
+</style>
+
+<div class="rc">
+  <div class="rc-top">
+    <div>
+      <span class="rc-mono" style="color:var(--g5)">Crop advisory · Action feed</span>
+      <h1>Recommendations</h1>
+      <p>What to do on your farms right now, ranked by how urgent it is.</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="rc-btn" href="{{ url_for('field_check') }}">＋ Custom field check</a>
+      <form method="post" action="{{ url_for('recommendations_recheck') }}" id="recheckForm">
+        <button class="rc-btn" type="submit" id="recheckBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12A9 9 0 0 1 18.5 5.8L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>Re-check all fields</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="rc-bar">
+    <div>
+      <div class="rc-mono" style="color:var(--mut);margin-bottom:9px">Show</div>
+      <div class="rc-filter" id="filters">
+        <button class="rc-chip {{ 'on' if show=='all' }}" data-f="all">All <em data-c="all">{{ counts.get('all',0) }}</em></button>
+        <button class="rc-chip {{ 'on' if show=='irrigation' }}" data-f="irrigation">Irrigation <em data-c="irrigation">{{ counts.get('irrigation',0) }}</em></button>
+        <button class="rc-chip {{ 'on' if show=='fertilizer' }}" data-f="fertilizer">Fertilizer <em data-c="fertilizer">{{ counts.get('fertilizer',0) }}</em></button>
+        <button class="rc-chip {{ 'on' if show=='alert' }}" data-f="alert">Alerts <em data-c="alert">{{ counts.get('alert',0) }}</em></button>
+      </div>
+    </div>
+    <div class="rc-sum">
+      <span><i style="background:#d1665a"></i><b>{{ current|selectattr('severity','equalto','high')|list|length }}</b> high</span>
+      <span><i style="background:#e3a93b"></i><b>{{ current|selectattr('severity','equalto','medium')|list|length }}</b> medium</span>
+      <span><i style="background:#7fa86f"></i><b>{{ current|selectattr('severity','equalto','low')|list|length }}</b> low</span>
+    </div>
+  </div>
+
+  <div class="rc-h2"><h2>Current (<span id="curCount" style="font:inherit;color:inherit">{{ counts.get('all',0) }}</span>)</h2><span id="filterNote"></span></div>
+
+  <div id="list">
+  {% for r in current %}
+    <article class="rc-card {{ r.severity }} {{ r.kind }}" data-kind="{{ r.kind }}" data-id="{{ r.id }}">
+      <div class="rc-ic">
+        {% if r.kind=='irrigation' %}<svg viewBox="0 0 24 24"><path d="M12 3s6 6.2 6 10.5A6 6 0 0 1 6 13.5C6 9.2 12 3 12 3z"/><path d="M9.5 14a2.6 2.6 0 0 0 2.5 2.4"/></svg>
+        {% elif r.kind=='fertilizer' %}<svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.6 18.2A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.8L14 9V3"/><path d="M7.5 15h9"/></svg>
+        {% else %}<svg viewBox="0 0 24 24"><path d="M12 3.5 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.4v.1"/></svg>{% endif %}
+      </div>
+      <div>
+        <div class="rc-meta">
+          <span class="rc-badge sev-{{ r.severity }}">ⓘ {{ r.severity }}</span>
+          <span class="rc-badge kind">{{ 'Alert' if r.kind=='alert' else r.kind }}</span>
+          <span class="rc-where">{{ r.farm_name or 'General' }} · {{ ago(r.age_s) }}</span>
+        </div>
+        <h3 class="rc-title">{{ r.title }}</h3>
+        {% if r.kind=='irrigation' and r.volume_kl is not none %}
+        <div class="rc-metrics">
+          <span class="rc-m">💧 {{ '{:,.0f}'.format(r.volume_kl) }} kL</span>
+          <span class="rc-m">⏱ {{ '%g'|format(r.pump_hours) }} h</span>
+          <span class="rc-m"><small>Deficit</small> {{ '%g'|format(r.deficit_pct) }}%</span>
+        </div>
+        {% elif r.kind=='fertilizer' and r.quantity_kg is not none %}
+        <div class="rc-metrics">
+          <span class="rc-m">⚖ {{ '{:,.0f}'.format(r.quantity_kg) }} kg</span>
+          <span class="rc-m"><small>Product</small> {{ r.product }}</span>
+        </div>
+        {% endif %}
+        <details class="rc-why"><summary>Why this recommendation?</summary><p>{{ r.reason }}</p></details>
+        <div class="rc-act">
+          <form method="post" action="{{ url_for('recommendation_action', rec_id=r.id, action='done') }}"><button class="rc-done" type="submit" data-act="done">✓ Mark as done</button></form>
+          <form method="post" action="{{ url_for('recommendation_action', rec_id=r.id, action='dismissed') }}"><button class="rc-dismiss" type="submit" data-act="dismissed">✕ Dismiss</button></form>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+  </div>
+
+  <div class="rc-empty" id="empty" style="{{ 'display:none' if current }}">
+    {% if has_farms %}
+      <div class="big">🌾</div><h3>You're all caught up</h3>
+      <p>No pending actions right now. Update a farm's soil-moisture reading and re-check to see fresh recommendations.</p>
+      <a class="rc-btn" href="{{ url_for('dashboard') }}">Open dashboard</a>
+    {% else %}
+      <div class="big">🌱</div><h3>Add a farm to get recommendations</h3>
+      <p>Recommendations are built from each farm's soil moisture, pH, crop stage, irrigation method and area.</p>
+      <a class="rc-btn" href="{{ url_for('farm_new') }}">＋ Add your first farm</a>
+    {% endif %}
+  </div>
+  <div class="rc-empty" id="emptyFilter" style="display:none"><div class="big">🔍</div><h3>Nothing in this category</h3><p>Switch the filter to see your other pending actions.</p></div>
+
+  {% if past %}
+  <details class="rc-hist">
+    <summary>Completed &amp; dismissed ({{ past|length }})</summary>
+    {% for r in past %}
+    <div class="rc-row"><span class="st {{ r.status }}">{{ r.status }}</span>
+      <span class="t">{{ r.title }}<small>{{ r.farm_name or 'General' }} · {{ ago(r.age_s) }}</small></span>
+      <form method="post" action="{{ url_for('recommendation_action', rec_id=r.id, action='reopen') }}"><button type="submit">Reopen</button></form></div>
+    {% endfor %}
+  </details>
+  {% endif %}
+
+  <div class="rc-note"><b>How to read this.</b> Quantities are guideline estimates from your farm profile (stage, moisture, area, irrigation method) and an assumed pump rate of 36 kL/h — not live sensor data. Marking an irrigation as done sets the farm's soil moisture to its stage target. Verify with field checks and local agricultural advice.</div>
+</div>
+
+<div class="rc-toast" id="toast"><span id="toastMsg"></span><button id="undo" type="button">Undo</button></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  let filter='{{ show }}', lastId=null, tTimer;
+
+  function apply(){
+    let vis=0;
+    $$('#list .rc-card').forEach(c=>{const ok=filter==='all'||c.dataset.kind===filter;c.classList.toggle('hide',!ok);if(ok&&!c.classList.contains('out'))vis++});
+    const total=$$('#list .rc-card:not(.out)').length;
+    $('#emptyFilter').style.display=(total&&!vis)?'block':'none';
+    $('#empty').style.display=total?'none':'block';
+    $('#curCount').textContent=total;
+    $$('#filters .rc-chip').forEach(b=>b.classList.toggle('on',b.dataset.f===filter));
+    $('#filterNote').textContent=filter==='all'?'':'Showing '+filter+' only';
+  }
+  $$('#filters .rc-chip').forEach(b=>b.addEventListener('click',()=>{
+    filter=b.dataset.f; apply(); history.replaceState(null,'','?show='+filter)}));
+  apply();
+
+  function toast(msg,undo){
+    $('#toastMsg').textContent=msg; $('#undo').style.display=undo?'':'none';
+    $('#toast').classList.add('show'); clearTimeout(tTimer); tTimer=setTimeout(()=>$('#toast').classList.remove('show'),6000);
+  }
+
+  $$('.rc-act form').forEach(f=>f.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const card=f.closest('.rc-card'), act=e.submitter.dataset.act, id=card.dataset.id;
+    const btns=card.querySelectorAll('button'); btns.forEach(b=>b.disabled=true);
+    try{
+      const r=await fetch(f.action,{method:'POST',headers:{'X-Requested-With':'fetch'}});
+      if(!r.ok)throw 0; const j=await r.json();
+      card.classList.add('out'); lastId=id;
+      setTimeout(()=>{card.remove();apply()},420);
+      Object.entries({all:0,irrigation:0,fertilizer:0,alert:0}).forEach(([k])=>{const el=document.querySelector('[data-c="'+k+'"]');if(el)el.textContent=j.counts[k]||0});
+      toast((act==='done'?'Marked as done. ':'Dismissed. ')+(j.note||''),true);
+    }catch(_){btns.forEach(b=>b.disabled=false);f.submit()}
+  }));
+  $('#undo').addEventListener('click',async()=>{
+    if(!lastId)return; await fetch('/recommendations/'+lastId+'/reopen',{method:'POST',headers:{'X-Requested-With':'fetch'}}); location.reload();
+  });
+  $('#recheckForm').addEventListener('submit',()=>$('#recheckBtn').classList.add('spin'));
+})();
+</script>
+{% endblock %}

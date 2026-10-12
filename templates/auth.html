@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Create account' if mode=='register' else 'Sign in' }} — Canefield{% endblock %}
+{% block page_class %}wide{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<style>
+.page.wide .flashes{padding:14px clamp(18px,3vw,40px) 0;margin:0}
+.au{--g9:#14291c;--g8:#1d3a29;--g7:#2a5239;--g5:#4c8159;--amber:#e3a93b;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);min-height:calc(100vh - 68px)}
+.au *{box-sizing:border-box}
+.au h1,.au h2{font-family:Fraunces,Georgia,serif;letter-spacing:-.02em}
+.au-mono{font-family:'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;font-size:10px;font-weight:700}
+
+/* brand panel */
+.au-side{position:relative;overflow:hidden;color:#f1efdf;padding:clamp(34px,5vw,70px);display:flex;flex-direction:column;justify-content:space-between;gap:30px;background:radial-gradient(700px 420px at 15% 0,#2f6a45 0,transparent 65%),linear-gradient(165deg,var(--g9),var(--g8))}
+.au-side::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 46px,#ffffff06 46px 48px);pointer-events:none}
+.au-side>*{position:relative;z-index:1}
+.au-side h1{font-size:clamp(34px,4.4vw,56px);line-height:1.05;margin:18px 0 14px;font-weight:800}
+.au-side h1 em{font-style:italic;font-weight:500;color:var(--amber)}
+.au-side p.lead{color:#bcd0b6;line-height:1.8;font-size:15px;max-width:440px;margin:0}
+.au-cards{position:relative;height:250px;max-width:430px}
+.au-card{position:absolute;background:#fbf7ecf2;color:#1c2a20;border-radius:15px;padding:14px 16px;box-shadow:0 18px 40px #0005;animation:aufloat 6s ease-in-out infinite}
+.au-card .au-mono{color:#6c7b6e;display:block;margin-bottom:6px}
+.au-card b{font:700 16px Fraunces,serif;display:block}
+.au-card small{color:#6c7b6e;font-size:11.5px}
+.au-card .bar{height:6px;border-radius:5px;background:#e4dec9;margin-top:9px;overflow:hidden}
+.au-card .bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--g5),#8bbd75);animation:aubar 3.2s ease-in-out infinite alternate}
+.au-card.a{top:0;left:0;width:240px}
+.au-card.b{top:70px;left:200px;width:218px;animation-delay:-2s}
+.au-card.c{top:158px;left:24px;width:230px;animation-delay:-4s}
+.au-tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:6px;background:#fdf0d1;color:#8a6417;font:700 10px 'JetBrains Mono',monospace}
+.au-tag.g{background:#e3f1de;color:#2f6a3c}
+@keyframes aufloat{50%{transform:translateY(-9px)}}
+@keyframes aubar{from{width:30%}to{width:88%}}
+.au-tip{border-top:1px solid #ffffff22;padding-top:18px;max-width:460px;min-height:92px}
+.au-tip q{display:block;font:italic 500 18px/1.55 Fraunces,serif;color:#e8efdb;quotes:none;transition:opacity .4s}
+.au-dots{display:flex;gap:7px;margin-top:14px}
+.au-dots i{width:20px;height:3px;border-radius:2px;background:#ffffff30;transition:all .3s}
+.au-dots i.on{background:var(--amber);width:34px}
+
+/* form panel */
+.au-main{display:grid;place-items:center;padding:clamp(26px,4vw,60px) clamp(18px,3vw,40px);background:#faf8f0}
+.au-box{width:min(440px,100%)}
+.au-switch{display:grid;grid-template-columns:1fr 1fr;background:#ece7d4;border-radius:12px;padding:4px;margin-bottom:28px;position:relative}
+.au-switch a{position:relative;z-index:1;text-align:center;padding:11px;border-radius:9px;font-weight:700;font-size:13px;text-decoration:none;color:#6d705f;transition:color .25s}
+.au-switch a.on{color:#fff}
+.au-switch::before{content:"";position:absolute;top:4px;bottom:4px;width:calc(50% - 4px);left:4px;border-radius:9px;background:var(--g8);transition:transform .35s cubic-bezier(.3,1.2,.5,1);transform:translateX({{ '100%' if mode=='register' else '0' }})}
+.au-box h2{font-size:34px;margin:0 0 8px;color:var(--g9)}
+.au-box .sub{color:#78816f;font-size:14px;line-height:1.7;margin:0 0 24px}
+.au-f{position:relative;margin-bottom:16px}
+.au-f label{display:block;font-size:12px;font-weight:700;color:#4a5a4d;margin-bottom:7px}
+.au-in{position:relative}
+.au-in input{width:100%;height:50px;padding:0 46px 0 44px;border:1.5px solid #ddd8c3;border-radius:12px;background:#fff;font:500 14.5px Inter,sans-serif;color:#1c2a20;outline:none;transition:border-color .2s,box-shadow .2s}
+.au-in input:focus{border-color:var(--g5);box-shadow:0 0 0 4px #4c815922}
+.au-in input.bad{border-color:#d1665a;box-shadow:0 0 0 4px #d1665a1c}
+.au-in input.good{border-color:#6aa56f}
+.au-in .ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.55;pointer-events:none}
+.au-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:transparent;cursor:pointer;font-size:16px;border-radius:9px;opacity:.6}
+.au-eye:hover{background:#0000000a;opacity:1}
+.au-hint{min-height:18px;margin-top:6px;font-size:11.5px;color:#a0572f;font-weight:600;display:none}
+.au-hint.show{display:block}
+.au-str{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:9px}
+.au-str i{height:5px;border-radius:3px;background:#e3dec9;transition:background .3s}
+.au-strt{font-size:11.5px;color:#78816f;margin-top:6px;display:flex;justify-content:space-between}
+.au-go{width:100%;height:54px;margin-top:8px;border:0;border-radius:12px;background:var(--g8);color:#fff;font:700 15px Inter,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .2s,background .2s,box-shadow .2s;box-shadow:0 12px 26px #1d3a2930}
+.au-go:hover{background:var(--g7);transform:translateY(-2px)}
+.au-go[disabled]{opacity:.75;cursor:progress;transform:none}
+.au-spin{width:16px;height:16px;border-radius:50%;border:2.5px solid #ffffff55;border-top-color:#fff;animation:auspin .7s linear infinite;display:none}
+.au-go.load .au-spin{display:block}
+@keyframes auspin{to{transform:rotate(360deg)}}
+.au-foot{margin:22px 0 0;text-align:center;font-size:13px;color:#78816f}
+.au-foot a{color:var(--g7);font-weight:700}
+.au-home{display:inline-block;margin-top:26px;font-size:12px;color:#8a917f;text-decoration:none;font-weight:600}
+.au-home:hover{color:var(--g7)}
+@media(max-width:900px){.au{grid-template-columns:1fr;min-height:0}.au-side{padding:30px 22px;gap:20px}.au-cards{display:none}.au-tip{min-height:0}}
+@media(prefers-reduced-motion:reduce){.au-card,.au-card .bar i{animation:none}}
+</style>
+
+<div class="au">
+  <aside class="au-side">
+    <div>
+      <span class="au-mono" style="color:#a9c2a3">{{ 'Start your season' if mode=='register' else 'Welcome back' }}</span>
+      <h1>{% if mode=='register' %}Every good harvest starts with <em>one clear reading.</em>{% else %}Your fields have <em>news</em> for you.{% endif %}</h1>
+      <p class="lead">Sign in to see today's priority actions, soil moisture across your farms and the water and fertilizer plan for each plot.</p>
+    </div>
+    <div class="au-cards" aria-hidden="true">
+      <div class="au-card a"><span class="au-mono">Irrigation</span><b>Irrigate today · 856 kL</b><small>Deficit 11% · 2 sessions</small><div class="bar"><i></i></div></div>
+      <div class="au-card b"><span class="au-mono">Fertilizer</span><b>Apply 64 kg MOP</b><small>Mid stage · 2.1 acres</small><span class="au-tag">MEDIUM</span></div>
+      <div class="au-card c"><span class="au-mono">Alert</span><b>Soil pH looks healthy</b><small>6.8 — inside the safe range</small><br><span class="au-tag g">ON TRACK</span></div>
+    </div>
+    <div>
+      <div class="au-tip"><q id="tip"></q><div class="au-dots" id="dots"></div></div>
+    </div>
+  </aside>
+
+  <main class="au-main">
+    <div class="au-box">
+      <div class="au-switch" role="tablist">
+        <a href="{{ url_for('login') }}" class="{{ 'on' if mode!='register' }}">Sign in</a>
+        <a href="{{ url_for('register') }}" class="{{ 'on' if mode=='register' }}">Create account</a>
+      </div>
+      <h2>{{ 'Create your account' if mode=='register' else 'Sign in' }}</h2>
+      <p class="sub">{{ 'A few details to set up your farmer workspace — it takes under a minute.' if mode=='register' else 'Enter the email and password for your Canefield account.' }}</p>
+
+      <form method="post" id="authForm" novalidate>
+        {% if mode=='register' %}
+        <div class="au-f"><label for="name">Full name</label>
+          <div class="au-in"><span class="ic">👤</span><input id="name" name="name" required placeholder="e.g. Avani Patil" autocomplete="name"></div></div>
+        {% endif %}
+        <div class="au-f"><label for="email">Email address</label>
+          <div class="au-in"><span class="ic">✉️</span><input id="email" name="email" type="email" required placeholder="you@example.com" autocomplete="email" {{ 'autofocus' if mode!='register' }}></div>
+          <div class="au-hint" id="emailHint">Enter a valid email address.</div></div>
+        <div class="au-f"><label for="password">Password</label>
+          <div class="au-in"><span class="ic">🔒</span><input id="password" name="password" type="password" required minlength="8" placeholder="{{ 'At least 8 characters' if mode=='register' else 'Your password' }}" autocomplete="{{ 'new-password' if mode=='register' else 'current-password' }}">
+            <button type="button" class="au-eye" id="eye" aria-label="Show password">👁️</button></div>
+          <div class="au-hint" id="capsHint">Caps Lock is on.</div>
+          {% if mode=='register' %}
+          <div class="au-str" id="str"><i></i><i></i><i></i><i></i></div>
+          <div class="au-strt"><span id="strT">Use 8+ characters with numbers and symbols.</span></div>
+          {% endif %}
+        </div>
+        <button class="au-go" id="go" type="submit"><span class="au-spin"></span><span id="goT">{{ 'Create account' if mode=='register' else 'Sign in to Canefield' }}</span><span>→</span></button>
+      </form>
+
+      <p class="au-foot">{{ 'Already registered?' if mode=='register' else 'New to Canefield?' }} <a href="{{ url_for('login') if mode=='register' else url_for('register') }}">{{ 'Sign in' if mode=='register' else 'Create an account' }}</a></p>
+      <a class="au-home" href="{{ url_for('home') }}">← Back to the intro</a>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), reg={{ 'true' if mode=='register' else 'false' }};
+  const pw=$('#password'), em=$('#email');
+
+  /* rotating tips */
+  const tips=['Irrigate in early morning or evening to cut evaporation losses.','A soil probe reading beats guessing — check moisture at 15–20 cm.','Split nitrogen into two or three doses during grand growth.','Standing water for days? Drain first, irrigate later.'];
+  const tipEl=$('#tip'), dots=$('#dots'); let i=0;
+  dots.innerHTML=tips.map(()=>'<i></i>').join('');
+  function show(n){tipEl.style.opacity=0;setTimeout(()=>{tipEl.textContent='“'+tips[n]+'”';tipEl.style.opacity=1;[...dots.children].forEach((d,k)=>d.classList.toggle('on',k===n))},300)}
+  show(0); setInterval(()=>{i=(i+1)%tips.length;show(i)},5200);
+
+  /* show / hide password */
+  $('#eye').addEventListener('click',()=>{const s=pw.type==='password';pw.type=s?'text':'password';$('#eye').textContent=s?'🙈':'👁️'});
+
+  /* caps lock */
+  const caps=$('#capsHint');
+  ['keydown','keyup'].forEach(ev=>pw.addEventListener(ev,e=>{caps.classList.toggle('show',e.getModifierState&&e.getModifierState('CapsLock'))}));
+  pw.addEventListener('blur',()=>caps.classList.remove('show'));
+
+  /* email check */
+  const ok=v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+  em.addEventListener('blur',()=>{const bad=em.value&&!ok(em.value);em.classList.toggle('bad',bad);em.classList.toggle('good',em.value&&!bad);$('#emailHint').classList.toggle('show',bad)});
+  em.addEventListener('input',()=>{if(em.classList.contains('bad')&&ok(em.value)){em.classList.remove('bad');$('#emailHint').classList.remove('show')}});
+
+  /* password strength */
+  if(reg){
+    const bars=[...document.querySelectorAll('#str i')], cols=['#d1665a','#e3a93b','#9bbf5e','#4c8159'], lbl=['Too short','Weak','Okay','Strong'];
+    pw.addEventListener('input',()=>{
+      const v=pw.value; let s=0;
+      if(v.length>=8)s++; if(/[A-Z]/.test(v)&&/[a-z]/.test(v))s++; if(/\d/.test(v))s++; if(/[^A-Za-z0-9]/.test(v)||v.length>=14)s++;
+      bars.forEach((b,k)=>b.style.background=k<s?cols[Math.max(0,s-1)]:'#e3dec9');
+      $('#strT').textContent=v?lbl[Math.max(0,s-1)]+(v.length<8?' — needs 8+ characters':''):'Use 8+ characters with numbers and symbols.';
+      pw.classList.toggle('good',v.length>=8);
+    });
+  }
+
+  /* submit */
+  $('#authForm').addEventListener('submit',e=>{
+    if(!ok(em.value)){e.preventDefault();em.classList.add('bad');$('#emailHint').classList.add('show');em.focus();return}
+    if(reg&&pw.value.length<8){e.preventDefault();pw.classList.add('bad');pw.focus();return}
+    const b=$('#go');b.classList.add('load');b.disabled=true;$('#goT').textContent=reg?'Creating your space…':'Signing in…';
+  });
+})();
+</script>
+{% endblock %}

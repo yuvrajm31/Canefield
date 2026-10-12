@@ -1,0 +1,830 @@
+{% extends 'base.html' %}
+{% block title %}Field check — Canefield{% endblock %}
+
+{% block content %}
+<style>@media print{.nav,.footer,.advisory-form,.advisory-feedback,.no-print,button{display:none!important}.page{width:100%;padding:0}.advisory-results{break-inside:avoid}}</style>
+<style>
+    .advisory-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding-bottom: 48px;
+        color: #263b2d;
+    }
+
+    .advisory-page * { box-sizing: border-box; }
+
+    .advisory-hero {
+        background: linear-gradient(130deg, #edf5e9, #f8f8ef);
+        border: 1px solid #dce8d7;
+        border-radius: 22px;
+        padding: 34px;
+        margin-bottom: 26px;
+    }
+
+    .advisory-eyebrow {
+        color: #53805c;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.7px;
+        text-transform: uppercase;
+    }
+
+    .advisory-hero h1 {
+        font-size: clamp(29px, 4vw, 43px);
+        line-height: 1.15;
+        letter-spacing: -1.2px;
+        margin: 12px 0;
+        color: #244832;
+    }
+
+    .advisory-hero h1 em {
+        color: #62875b;
+        font-style: normal;
+    }
+
+    .advisory-hero p {
+        max-width: 650px;
+        color: #68786a;
+        font-size: 15px;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+    .advisory-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.8fr) minmax(250px, 0.8fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .advisory-panel {
+        background: #fff;
+        border: 1px solid #e4e9e1;
+        border-radius: 18px;
+        padding: 27px;
+        box-shadow: 0 5px 20px rgba(36, 72, 50, 0.035);
+        min-width: 0;
+    }
+
+    .advisory-section-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin-bottom: 25px;
+    }
+
+    .advisory-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 43px;
+        height: 43px;
+        flex-shrink: 0;
+        background: #edf5e9;
+        color: #39734b;
+        border-radius: 13px;
+        font-size: 22px;
+    }
+
+    .advisory-section-heading h2 {
+        margin: 0 0 5px;
+        font-size: 21px;
+        color: #294b35;
+    }
+
+    .advisory-section-heading p {
+        margin: 0;
+        color: #819083;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .advisory-page label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #405746;
+        margin-bottom: 17px;
+    }
+
+    .advisory-page input,
+    .advisory-page select,
+    .advisory-page textarea {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 8px;
+        padding: 12px 13px;
+        background: #fbfcfa;
+        color: #304437;
+        border: 1px solid #dce5da;
+        border-radius: 9px;
+        font: inherit;
+        font-size: 14px;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .advisory-page input:focus,
+    .advisory-page select:focus,
+    .advisory-page textarea:focus {
+        border-color: #62966b;
+        box-shadow: 0 0 0 3px rgba(98, 150, 107, .12);
+    }
+
+    .advisory-page input::placeholder,
+    .advisory-page textarea::placeholder {
+        color: #a2ada2;
+    }
+
+    .advisory-page .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 17px;
+    }
+
+    .advisory-field-note {
+        display: block;
+        color: #829084;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.5;
+        margin-top: 4px;
+    }
+
+    .advisory-submit {
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        padding: 15px 20px;
+        background: #2e6541;
+        color: #fff;
+        font-weight: 750;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background .2s, transform .2s;
+    }
+
+    .advisory-submit:hover {
+        background: #234f33;
+        transform: translateY(-1px);
+    }
+
+    .advisory-side {
+        background: #f6f8f2;
+        border: 1px solid #e4e9dc;
+        border-radius: 18px;
+        padding: 25px;
+    }
+
+    .advisory-side-art {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 105px;
+        margin-bottom: 20px;
+        border-radius: 14px;
+        background: #e8f0e2;
+        color: #4b7951;
+        font-size: 55px;
+    }
+
+    .advisory-side h3 {
+        margin: 11px 0;
+        color: #294b35;
+        font-size: 21px;
+        line-height: 1.4;
+    }
+
+    .advisory-side > p {
+        color: #718073;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .advisory-side ul {
+        padding-left: 19px;
+        color: #506553;
+        font-size: 13px;
+        line-height: 1.9;
+    }
+
+    .advisory-notice {
+        padding: 13px 15px;
+        background: #fff5df;
+        color: #795b25;
+        border: 1px solid #f0dfb9;
+        border-radius: 10px;
+        font-size: 12px;
+        line-height: 1.7;
+        margin-top: 19px;
+    }
+
+    .advisory-results {
+        margin-top: 34px;
+        scroll-margin-top: 20px;
+    }
+
+    .advisory-results-heading { margin-bottom: 20px; }
+
+    .advisory-results-heading h2 {
+        margin: 9px 0;
+        font-size: clamp(25px, 3vw, 32px);
+        color: #294b35;
+        letter-spacing: -.6px;
+    }
+
+    .advisory-results-heading p {
+        color: #778477;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .advisory-result-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 17px;
+        align-items: stretch;
+    }
+
+    .advisory-result-card {
+        position: relative;
+        min-width: 0;
+        padding: 23px;
+        background: #fff;
+        border: 1px solid #e3e9e0;
+        border-radius: 17px;
+        box-shadow: 0 5px 18px rgba(36, 72, 50, .035);
+    }
+
+    .advisory-result-card.water {
+        background: #f0f7f0;
+        border-color: #dbe9d9;
+    }
+
+    .advisory-result-label {
+        color: #7a8c7b;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.25px;
+    }
+
+    .advisory-result-symbol {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        margin: 19px 0 15px;
+        background: #e8f0e4;
+        color: #3d7750;
+        font-size: 25px;
+    }
+
+    .advisory-result-card h3 {
+        margin: 0 0 11px;
+        color: #2d5038;
+        font-size: 19px;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    .advisory-result-card > p {
+        color: #738174;
+        font-size: 13px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    .advisory-water-detail {
+        margin-top: 17px;
+        padding-top: 14px;
+        border-top: 1px solid #d9e6d6;
+        color: #47704c;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .advisory-risk {
+        display: inline-block;
+        margin: 19px 0 15px;
+        padding: 7px 11px;
+        border-radius: 7px;
+        background: #f7edcf;
+        color: #87651c;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .advisory-risk.risk-low,
+    .advisory-risk.risk-lower {
+        background: #e4f2e5;
+        color: #2d6a3c;
+    }
+
+    .advisory-risk.risk-high,
+    .advisory-risk.risk-critical {
+        background: #fae6e3;
+        color: #9b4037;
+    }
+
+    .advisory-yield {
+        margin: 22px 0 17px;
+        color: #2e6541;
+        font-size: clamp(27px, 3vw, 36px);
+        font-weight: 800;
+        letter-spacing: -1px;
+        overflow-wrap: anywhere;
+    }
+
+    .advisory-yield small {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #819082;
+    }
+
+    .advisory-warning {
+        margin-top: 20px;
+        padding: 16px 19px;
+        border: 1px solid #efdfb9;
+        border-radius: 12px;
+        background: #fff8e9;
+        color: #795c2b;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .advisory-warning p { margin: 4px 0; }
+
+    .advisory-method {
+        margin-top: 17px;
+        padding: 17px 19px;
+        background: #f5f7f2;
+        border: 1px solid #e6ebe1;
+        border-radius: 12px;
+        color: #68796b;
+        font-size: 13px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    .advisory-method summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        cursor: pointer;
+        list-style: none;
+        color: #365d40;
+    }
+
+    .advisory-method summary::-webkit-details-marker { display: none; }
+
+    .advisory-method summary::after {
+        content: "+";
+        flex-shrink: 0;
+        font-size: 22px;
+        font-weight: 400;
+        line-height: 1;
+    }
+
+    .advisory-method[open] summary::after { content: "−"; }
+
+    .advisory-method-summary-title { font-weight: 750; }
+
+    .advisory-method-summary-subtitle {
+        display: block;
+        color: #879488;
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+    .advisory-method-content {
+        border-top: 1px solid #e0e7dc;
+        margin-top: 14px;
+        padding-top: 10px;
+    }
+
+    .advisory-method-content p { margin: 9px 0; }
+
+    .advisory-feedback { margin-top: 34px; }
+
+    .advisory-rating-help {
+        display: block;
+        margin-top: 4px;
+        color: #819082;
+        font-size: 12px;
+        font-weight: 400;
+    }
+
+    .advisory-feedback textarea {
+        resize: vertical;
+        min-height: 105px;
+    }
+
+    .advisory-feedback .advisory-submit { margin-top: 5px; }
+
+    @media (max-width: 850px) {
+        .advisory-layout { grid-template-columns: 1fr; }
+        .advisory-result-grid { grid-template-columns: 1fr; }
+        .advisory-result-card { padding: 22px; }
+    }
+
+    @media (max-width: 560px) {
+        .advisory-page { padding-bottom: 25px; }
+        .advisory-hero {
+            padding: 24px 20px;
+            border-radius: 16px;
+        }
+        .advisory-panel,
+        .advisory-side {
+            padding: 20px;
+            border-radius: 15px;
+        }
+        .advisory-page .form-grid { grid-template-columns: 1fr; }
+        .advisory-section-heading h2 { font-size: 19px; }
+        .advisory-method summary { align-items: flex-start; }
+    }
+</style>
+
+<div class="advisory-page">
+
+    <section class="advisory-hero">
+        <a href="{{ url_for('advisory') }}" style="font-size:12px;font-weight:700;color:#53805c;text-decoration:none">← Back to recommendations</a>
+        <div class="advisory-eyebrow" style="margin-top:14px">CANEFIELD / CUSTOM FIELD CHECK</div>
+        <h1>Custom <em>field check.</em></h1>
+        <p>
+            Review your field conditions to generate an irrigation recommendation,
+            a crop disease screening result, and an indicative yield estimate.
+            Use recent measurements wherever possible.
+        </p>
+    </section>
+
+    <div class="advisory-layout">
+
+        <form class="advisory-panel" method="post" novalidate>
+
+            <div class="advisory-section-heading">
+                <div class="advisory-icon">✳</div>
+                <div>
+                    <h2>Field conditions</h2>
+                    <p>Enter the available information about your sugarcane crop.</p>
+                </div>
+            </div>
+
+            <label for="farm_id">
+                Saved farm profile
+                <select id="farm_id" name="farm_id">
+                    <option value="">General field check</option>
+                    {% for f in farms %}
+                    <option value="{{ f.id }}" {{ 'selected' if preselect==f.id }}>
+                        {{ f.farm_name }} — {{ f.area_acres }} acres
+                    </option>
+                    {% endfor %}
+                </select>
+                <span class="advisory-field-note">
+                    Select a saved farm if you want to associate this advisory with it.
+                </span>
+            </label>
+
+            <div class="form-grid">
+
+                <label for="soil_moisture">
+                    Soil moisture (%)
+                    <input id="soil_moisture" name="soil_moisture"
+                           type="number" step="0.1"
+                           placeholder="e.g. 21">
+                </label>
+
+                <label for="rainfall">
+                    Recent rainfall (mm)
+                    <input id="rainfall" name="rainfall"
+                           type="number" step="0.1" min="0"
+                           placeholder="e.g. 12">
+                </label>
+
+                <label for="temperature">
+                    Average temperature (°C)
+                    <input id="temperature" name="temperature"
+                           type="number" step="0.1"
+                           placeholder="e.g. 29">
+                </label>
+
+                <label for="humidity">
+                    Humidity (%)
+                    <input id="humidity" name="humidity"
+                           type="number" step="0.1"
+                           placeholder="e.g. 72">
+                </label>
+
+                <label for="soil_type">
+                    Soil type
+                    <select id="soil_type" name="soil_type">
+                        <option>Loamy</option>
+                        <option>Clay</option>
+                        <option>Sandy</option>
+                        <option>Alluvial</option>
+                        <option>Black</option>
+                    </select>
+                </label>
+
+                <label for="soil_ph">
+                    Soil pH
+                    <input id="soil_ph" name="soil_ph"
+                           type="number" step="0.1" min="0" max="14"
+                           value="6.8">
+                </label>
+
+                <label for="nitrogen">
+                    Nitrogen (kg/acre)
+                    <input id="nitrogen" name="nitrogen"
+                           type="number" step="0.1" value="120">
+                </label>
+
+                <label for="potassium">
+                    Potassium (kg/acre)
+                    <input id="potassium" name="potassium"
+                           type="number" step="0.1" value="100">
+                </label>
+
+                <label for="phosphorus">
+                    Phosphorus (kg/acre)
+                    <input id="phosphorus" name="phosphorus"
+                           type="number" step="0.1" value="45">
+                </label>
+
+                <label for="growth_stage">
+                    Crop growth stage
+                    <select id="growth_stage" name="growth_stage">
+                        <option>Early</option>
+                        <option selected>Mid</option>
+                        <option>Late</option>
+                    </select>
+                </label>
+
+                <label for="irrigation_method">
+                    Irrigation method
+                    <select id="irrigation_method" name="irrigation_method">
+                        <option>Drip</option>
+                        <option>Sprinkler</option>
+                        <option>Flood</option>
+                        <option>Furrow</option>
+                    </select>
+                </label>
+
+                <label for="season">
+                    Season
+                    <select id="season" name="season">
+                        <option>Kharif</option>
+                        <option>Rabi</option>
+                        <option>Summer</option>
+                    </select>
+                </label>
+
+                <label for="cane_height">
+                    Cane height (cm)
+                    <span class="advisory-field-note">Optional</span>
+                    <input id="cane_height" name="cane_height"
+                           type="number" step="0.1" min="0"
+                           placeholder="e.g. 220">
+                </label>
+
+                <label for="brix">
+                    Brix value
+                    <span class="advisory-field-note">Optional</span>
+                    <input id="brix" name="brix"
+                           type="number" step="0.1" min="0"
+                           placeholder="e.g. 19">
+                </label>
+
+                <label for="duration">
+                    Crop duration (days)
+                    <input id="duration" name="duration"
+                           type="number" step="1" min="1"
+                           value="300">
+                </label>
+
+            </div>
+
+            <button class="advisory-submit" type="submit">
+                Generate crop advisory &nbsp; ↗
+            </button>
+
+        </form>
+
+        <aside class="advisory-side">
+            <div class="advisory-side-art">♧</div>
+
+            <div class="advisory-eyebrow">BEFORE YOU BEGIN</div>
+            <h3>Good decisions start with good field data.</h3>
+
+            <p>
+                Recent and accurate measurements help you understand what
+                the advisory can tell you about your crop.
+            </p>
+
+            <ul>
+                <li>Use recent soil moisture and rainfall readings.</li>
+                <li>Use a soil test for nutrient and pH values where available.</li>
+                <li>Check local weather before deciding to irrigate.</li>
+                <li>Inspect plants and confirm suspected disease with an expert.</li>
+            </ul>
+
+            <div class="advisory-notice">
+                <strong>Important to know</strong><br>
+                This version does not connect to live sensors, a weather API,
+                or image-based disease diagnosis. Model outputs are estimates,
+                not confirmed field measurements or diagnoses.
+            </div>
+        </aside>
+
+    </div>
+
+    {% if result %}
+    <section class="advisory-results" id="advisory-results">
+
+        <div class="advisory-results-heading">
+            <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap" class="no-print"><button type="button" class="advisory-submit" onclick="window.print()">Print / Save PDF</button></div>
+            <div class="advisory-eyebrow">YOUR FIELD REPORT</div>
+            <h2>Your advisory at a glance</h2>
+            <p>
+                Review each result separately and consider the limitations
+                before making field decisions.
+            </p>
+        </div>
+
+        <div class="advisory-result-grid">
+
+            <article class="advisory-result-card water">
+                <div class="advisory-result-label">01 / IRRIGATION</div>
+                <div class="advisory-result-symbol">≈</div>
+                <h3>{{ result.irrigation }}</h3>
+                <p>{{ result.irrigation_detail }}</p>
+                <div class="advisory-water-detail">
+                    <strong>Recommended next step</strong><br>
+                    {{ result.water }}
+                </div>
+            </article>
+
+            <article class="advisory-result-card">
+                <div class="advisory-result-label">02 / CROP HEALTH SCREENING</div>
+
+                <div class="advisory-risk
+                    {% if result.risk|lower in ['low', 'lower'] %}
+                        risk-low
+                    {% elif result.risk|lower in ['high', 'critical'] %}
+                        risk-high
+                    {% endif %}">
+                    {{ result.risk }} screening risk
+                </div>
+
+                <h3>{{ result.disease }}</h3>
+                <p>
+                    The predicted disease class and the screening-risk label
+                    are different outputs. This result is not a confirmed
+                    diagnosis. Inspect plants for visible symptoms and seek
+                    local agricultural advice if needed.
+                </p>
+            </article>
+
+            <article class="advisory-result-card">
+                <div class="advisory-result-label">03 / PREDICTED YIELD</div>
+
+                <div class="advisory-yield">
+                    {% if result.predicted_yield is not none %}
+                        {{ result.predicted_yield }}
+                    {% else %}
+                        —
+                    {% endif %}
+                    <small>quintals/acre</small>
+                </div>
+
+                <h3>Indicative model estimate</h3>
+                <p>
+                    This estimate reflects patterns learned from the
+                    bundled dataset. Actual yield may differ because of
+                    weather, crop management, pests, soil conditions,
+                    and other factors.
+                </p>
+            </article>
+
+        </div>
+
+        {% if result.warnings %}
+        <div class="advisory-warning">
+            <strong>Please review these notes</strong>
+            {% for w in result.warnings %}
+            <p>• {{ w }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <details class="advisory-method">
+            <summary>
+                <span>
+                    <span class="advisory-method-summary-title">
+                        About these results
+                    </span>
+                    <span class="advisory-method-summary-subtitle">
+                        View the method and important limitations
+                    </span>
+                </span>
+            </summary>
+
+            <div class="advisory-method-content">
+                <p>
+                    <strong>Method used:</strong>
+                    {{ result.method }}
+                </p>
+
+                <p>
+                    <strong>Irrigation:</strong>
+                    The recommendation uses screening rules based on the
+                    submitted moisture and rainfall values. It is not a
+                    live sensor reading or an automated irrigation command.
+                </p>
+
+                <p>
+                    <strong>Crop health:</strong>
+                    The disease class is predicted by a dataset-trained
+                    model when model training succeeds. The screening-risk
+                    label is calculated separately using temperature and
+                    humidity rules.
+                </p>
+
+                <p>
+                    <strong>Yield:</strong>
+                    The yield figure is an estimate from the trained model,
+                    not a guarantee of actual harvest.
+                </p>
+
+                <p>
+                    <strong>Record:</strong>
+                    This advisory has been saved to your advisory history.
+                </p>
+            </div>
+        </details>
+
+    </section>
+    {% endif %}
+
+    <section class="advisory-panel advisory-feedback">
+
+        <div class="advisory-section-heading">
+            <div class="advisory-icon">♡</div>
+            <div>
+                <h2>Share your feedback</h2>
+                <p>Tell us how we can make this tool more useful for farmers.</p>
+            </div>
+        </div>
+
+        <form action="{{ url_for('send_feedback') }}" method="post">
+            {% if result and result.id %}<input type="hidden" name="advisory_id" value="{{ result.id }}">{% endif %}
+
+            <label for="rating">
+                How useful is this system?
+                <span class="advisory-rating-help">Choose 1–5 stars</span>
+
+                <select id="rating" name="rating" required>
+                    <option value="5" selected>★★★★★ — Very useful</option>
+                    <option value="4">★★★★☆ — Useful</option>
+                    <option value="3">★★★☆☆ — Average</option>
+                    <option value="2">★★☆☆☆ — Needs improvement</option>
+                    <option value="1">★☆☆☆☆ — Not useful</option>
+                </select>
+            </label>
+
+            <label for="comments">
+                Comments or suggestions
+                <textarea id="comments" name="comments"
+                          rows="4" maxlength="1000"
+                          placeholder="What worked well? What should we improve?"></textarea>
+            </label>
+
+            <button class="advisory-submit" type="submit">
+                Submit feedback &nbsp; ↗
+            </button>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% if result %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const report = document.getElementById("advisory-results");
+        if (report) {
+            report.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    });
+</script>
+{% endif %}
+
+{% endblock %}

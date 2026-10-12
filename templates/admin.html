@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin — Canefield<section class="panel history-panel">
+    <div class="panel-head"><div><div class="eyebrow">FARMER EXPERIENCE</div><h2>Feedback and ratings</h2></div>
+        <span class="tag">{{ '%.1f'|format(rating_stats.average_rating or 0) }}/5 average · {{ rating_stats.rating_count }} ratings</span>
+    </div>
+    {% if feedback %}<div class="table-wrap"><table><thead><tr><th>Date</th><th>Farmer</th><th>Rating</th><th>Advisory</th><th>Comments</th></tr></thead><tbody>
+    {% for item in feedback %}<tr><td>{{ item.created_at.strftime('%Y-%m-%d') }}</td><td>{{ item.farmer_name }}</td><td>{{ item.rating if item.rating is not none else '—' }}/5</td><td>{{ item.advisory_number or 'General feedback' }}</td><td>{{ item.comments or '—' }}</td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<p class="muted">No feedback has been submitted yet.</p>{% endif %}
+</section>
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-head">
+    <div>
+        <div class="eyebrow">SYSTEM OVERVIEW / ADMIN</div>
+        <h1>Project <em>overview.</em></h1>
+        <p>Review registered accounts, farm records, advisory activity and the dataset summary.</p>
+    </div>
+</section>
+
+<section class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-label">REGISTERED USERS</span>
+        <div class="stat-value">{{ counts.users }}</div>
+        <p>Farmer and admin accounts</p>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">FARM RECORDS</span>
+        <div class="stat-value">{{ counts.farms }}</div>
+        <p>Saved profiles across users</p>
+    </div>
+
+    <div class="stat-card accent-stat">
+        <span class="stat-label">ADVISORIES</span>
+        <div class="stat-value">{{ counts.advisories }}</div>
+        <p>Saved field checks</p>
+    </div>
+</section>
+
+<section class="panel history-panel">
+    <div class="panel-head">
+        <div>
+            <div class="eyebrow">ACCOUNT DIRECTORY</div>
+            <h2>Users</h2>
+        </div>
+        <span class="tag">{{ dataset_stats.rows }} dataset rows</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td><span class="tag">{{ u.role }}</span></td>
+                    <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel history-panel">
+    <div class="panel-head">
+        <div>
+            <div class="eyebrow">FARM DIRECTORY</div>
+            <h2>Recent farms</h2>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Farm</th>
+                    <th>Farmer</th>
+                    <th>Area</th>
+                    <th>District</th>
+                    <th>Soil</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in farms %}
+                <tr>
+                    <td>{{ f.farm_name }}</td>
+                    <td>{{ f.farmer_name }}</td>
+                    <td>{{ f.area_acres }} acres</td>
+                    <td>{{ f.district or '—' }}</td>
+                    <td>{{ f.soil_type or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel history-panel">
+    <div class="panel-head">
+        <div>
+            <div class="eyebrow">RECENT MODEL ACTIVITY</div>
+            <h2>Advisory records</h2>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Farmer</th>
+                    <th>Farm</th>
+                    <th>Irrigation screen</th>
+                    <th>Risk</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in recent %}
+                <tr>
+                    <td>{{ a.farmer_name }}</td>
+                    <td>{{ a.farm_name or 'General check' }}</td>
+                    <td>{{ a.irrigation }}</td>
+                    <td>{{ a.disease_risk }}</td>
+                    <td>{{ a.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel history-panel">
+    <div class="panel-head"><div><div class="eyebrow">FARMER EXPERIENCE</div><h2>Feedback and ratings</h2></div>
+        <span class="tag">{{ '%.1f'|format(rating_stats.average_rating or 0) }}/5 average · {{ rating_stats.rating_count }} ratings</span>
+    </div>
+    {% if feedback %}<div class="table-wrap"><table><thead><tr><th>Date</th><th>Farmer</th><th>Rating</th><th>Advisory</th><th>Comments</th></tr></thead><tbody>
+    {% for item in feedback %}<tr><td>{{ item.created_at.strftime('%Y-%m-%d') }}</td><td>{{ item.farmer_name }}</td><td>{{ item.rating if item.rating is not none else '—' }}/5</td><td>{{ item.advisory_number or 'General feedback' }}</td><td>{{ item.comments or '—' }}</td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<p class="muted">No feedback has been submitted yet.</p>{% endif %}
+</section>
+{% endblock %}

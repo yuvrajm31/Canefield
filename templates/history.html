@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Advisory history — Canefield{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-head">
+    <div>
+        <div class="eyebrow">YOUR FIELD NOTEBOOK</div>
+        <h1>Advisory <em>history.</em></h1>
+        <p>Your saved field checks and model estimates, newest first.</p>
+    </div>
+
+    <a class="btn btn-dark" href="{{ url_for('field_check') }}">
+        New field check ↗
+    </a>
+</section>
+
+<section class="panel history-panel">
+    <form method="get" action="{{ url_for('history') }}" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+        <input type="search" name="q" value="{{ search_query or '' }}" placeholder="Search farm, irrigation, risk, notes" aria-label="Search advisory history" style="flex:1;min-width:220px;padding:11px 13px;border:1px solid #dfe7db;border-radius:10px">
+        <button class="btn btn-dark" type="submit">Search</button>
+        <a class="btn btn-green" href="{{ url_for('history_export') }}">Export CSV ↓</a>
+        <button class="btn btn-green" type="button" onclick="window.print()">Print / Save PDF</button>
+    </form>
+
+    {% if rows %}
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Farm</th>
+                    <th>Irrigation</th>
+                    <th>Disease risk</th>
+                    <th>Yield estimate</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for a in rows %}
+                <tr>
+                    <td>{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+
+                    <td>{{ a.farm_name or 'General check' }}</td>
+
+                    <td>{{ a.irrigation }}</td>
+
+                    <td>
+                        <span class="risk risk-{{ a.disease_risk|lower }}">
+                            {{ a.disease_risk }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ a.predicted_yield if a.predicted_yield is not none else '—' }}
+                    </td>
+
+                    <td class="details-cell">{{ a.details }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+        <h3>No field notes yet.</h3>
+        <p>Run an advisory to start building your history.</p>
+
+        <a class="btn btn-dark" href="{{ url_for('field_check') }}">
+            Start a field check ↗
+        </a>
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% block head %}{% endblock %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Canefield — Sugarcane Advisory{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        :root{--cf-green:#315b3b;--cf-deep:#203d29;--cf-soft:#edf4e8;--cf-paper:#f8faf6;--cf-ink:#28372c;--cf-muted:#788477;--cf-line:#e5ebe1}
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        .page.wide{width:100%;max-width:none;padding:0;min-height:0}
+        .nav-links a.active{color:var(--cf-green);box-shadow:inset 0 -2px 0 #d9a441;padding-bottom:3px}
+        .nav-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:5px;padding:0 5px;border-radius:9px;background:#d9a441;color:#2a2108;font-size:10px;font-weight:800;vertical-align:1px}
+        body{margin:0;background:var(--cf-paper);color:var(--cf-ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+        a{color:var(--cf-green)}
+        .nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:22px;padding:14px clamp(18px,5vw,70px);background:rgba(255,255,255,.94);border-bottom:1px solid var(--cf-line);backdrop-filter:blur(14px)}
+        .brand{display:flex;align-items:center;gap:11px;color:var(--cf-deep);font-weight:800;font-size:19px;line-height:1.1;text-decoration:none;letter-spacing:-.4px;white-space:nowrap}
+        .brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:var(--cf-soft);color:var(--cf-green);font-size:23px}
+        .brand-sub{display:block;margin-top:5px;color:#81917d;font-size:8px;font-weight:800;letter-spacing:1.8px}
+        .nav-links{display:flex;align-items:center;justify-content:flex-end;gap:clamp(10px,2vw,25px);flex-wrap:wrap}
+        .nav-links a{font-size:12px;font-weight:700;text-decoration:none;color:#627061;transition:color .18s}
+        .nav-links a:hover{color:var(--cf-green)}
+        .nav-links .nav-cta,.nav-links .nav-logout{padding:10px 14px;border-radius:10px;background:var(--cf-green);color:white}
+        .nav-links .nav-logout{background:#f0f4ed;color:var(--cf-green)}
+        .user-chip{padding:7px 10px;border:1px solid var(--cf-line);border-radius:999px;color:#5e705d;font-size:11px;font-weight:700}
+        .page{width:min(1180px,100%);min-height:calc(100vh - 150px);margin:0 auto;padding:34px clamp(16px,3vw,28px) 54px}
+        .flashes{display:grid;gap:9px;margin-bottom:20px}
+        .flash{padding:12px 15px;border:1px solid var(--cf-line);border-radius:12px;background:white;color:#455747;font-size:13px}
+        .flash.success{background:#edf7e9;border-color:#d7e9d0;color:#35643a}.flash.error,.flash.danger{background:#fff0ed;border-color:#f0d6d0;color:#994d40}.flash.warning{background:#fff6e4;border-color:#f0e1bd;color:#876625}
+        .footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:20px clamp(18px,5vw,70px);background:#fff;border-top:1px solid var(--cf-line);color:#899287;font-size:10px}
+        .footer span:first-child{color:var(--cf-green);font-size:12px;font-weight:800}
+        button,input,select,textarea{font:inherit}
+        button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+        :focus-visible{outline:3px solid #a7c99b;outline-offset:3px}
+        .btn{cursor:pointer}
+        @media(max-width:760px){.nav{align-items:flex-start;flex-direction:column;gap:13px;padding:13px 18px}.nav-links{justify-content:flex-start;gap:12px}.page{padding-top:23px}.footer{align-items:flex-start;flex-direction:column;gap:6px}}
+        @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+    </style>
+</head>
+<body>
+<nav class="nav">
+    <a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">✳</span><span>Canefield<span class="brand-sub">SMART FARMING</span></span></a>
+    {% if session.get('user_id') %}
+    <div class="nav-links">
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">Dashboard</a>
+        <a href="{{ url_for('advisory') }}" class="{{ 'active' if request.endpoint=='advisory' }}">Recommendations</a>
+        <a href="{{ url_for('field_check') }}" class="{{ 'active' if request.endpoint=='field_check' }}">Field check</a>
+        <a href="{{ url_for('history') }}" class="{{ 'active' if request.endpoint=='history' }}">History</a>
+        {% if session.get('role')=='admin' %}<a href="{{ url_for('admin') }}">Admin</a>{% endif %}
+        <span class="user-chip">{{ session.get('name','Farmer') }}</span>
+        <a class="nav-logout" href="{{ url_for('logout') }}">Sign out ↗</a>
+    </div>
+    {% else %}
+    <div class="nav-links">
+        <a href="{{ url_for('home') }}#try">Try it</a>
+        <a href="{{ url_for('home') }}#features">Features</a>
+        <a href="{{ url_for('login') }}">Sign in</a>
+        <a class="nav-cta" href="{{ url_for('register') }}">Get started ↗</a>
+    </div>
+    {% endif %}
+</nav>
+<main class="page {% block page_class %}{% endblock %}">
+    {% with messages=get_flashed_messages(with_categories=true) %}
+        {% if messages %}<div class="flashes">{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+{% block footer %}<footer class="footer"><span>✳ Canefield</span><span>Designed for clearer, more informed farm decisions.</span><span>Research-data estimates · Verify in the field</span></footer>{% endblock %}
+</body>
+</html>
