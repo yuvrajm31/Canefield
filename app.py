@@ -22,13 +22,14 @@ DB_HOST = os.environ.get('DB_HOST', 'localhost')
 DB_PORT = os.environ.get('DB_PORT', '5432')
 DB_NAME = os.environ.get('DB_NAME', 'sugarcane_advisory')
 DB_USER = os.environ.get('DB_USER', 'postgres')
+DB_SSLMODE = os.environ.get('DB_SSLMODE', 'prefer')  # use 'require' for hosted databases such as Neon
 DB_PASSWORD = os.environ.get('DB_PASSWORD') or getpass('Enter PostgreSQL password for user postgres: ')
 
 
 def connect_db():
     return psycopg.connect(
         host=DB_HOST, port=DB_PORT, dbname=DB_NAME,
-        user=DB_USER, password=DB_PASSWORD, row_factory=dict_row
+        user=DB_USER, password=DB_PASSWORD, sslmode=DB_SSLMODE, row_factory=dict_row
     )
 
 
